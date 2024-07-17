@@ -1,44 +1,42 @@
-package com.example.mbmkadhumdhadaka
+package com.example.mbmkadhumdhadaka.pages
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mbmkadhumdhadaka.viewModel.AuthState
+import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 
 @Composable
-fun LgSpScreen(navController: NavController){
+fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
     val registerClick = remember {
         mutableStateOf(true)
     }
@@ -48,11 +46,20 @@ fun LgSpScreen(navController: NavController){
     val showDialog = remember {
         mutableStateOf(false)
     }
-
-//    val cartoonOffsetX by animateFloatAsState(
-//        targetValue = if (registerClick.value || loginClick.value) 360f else 0f,
-//        animationSpec = tween(durationMillis = 1000, easing = LinearEasing), label = ""
-//    )
+ val context = LocalContext.current
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect (authState.value){
+          when(authState.value){
+              is AuthState.Authenticated ->{
+                  navController.navigate("feed_screen")
+              }
+              is AuthState.Error ->{
+                  Toast.makeText(context,(authState.value as AuthState.Error).exception, Toast.LENGTH_SHORT).show()
+                  authViewModel.resetError()
+              }
+              else -> Unit
+          }
+    }
 
 
     Column (modifier = Modifier.padding(50.dp), horizontalAlignment = Alignment.CenterHorizontally){
@@ -77,13 +84,18 @@ fun LgSpScreen(navController: NavController){
             }
         }
         Text(text = "एमबीएम वर्ल्ड में आपका स्वागत है", modifier = Modifier.padding(bottom = 16.dp))
-        if(registerClick.value){
-            ShowRegisterForm()
+        when (authState.value) {
+            is AuthState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            else -> {
+                if (registerClick.value) {
+                    ShowRegisterForm(authViewModel, navController)
+                }
+                if (loginClick.value) {
+                    ShowLoginForm(authViewModel, navController)
+                }
+            }
         }
-        if(loginClick.value){
-            ShowLoginForm()
-        }
-//        AnimatedCartoon(offsetX = cartoonOffsetX)
+
         // terms & conditions
         Column(
             modifier = Modifier
@@ -133,11 +145,23 @@ fun LgSpScreen(navController: NavController){
 }
 
 @Composable
-fun ShowRegisterForm() {
+fun ShowRegisterForm(authViewModel: AuthViewModel,navController: NavController) {
     var onNameChanged by remember { mutableStateOf("") }
     var onEmailChange by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect (authState.value){
+        when(authState.value){
+            is AuthState.Authenticated ->{
+                navController.navigate("feed_screen")
+            }
+            is AuthState.Error ->{
+                Toast.makeText(context,(authState.value as AuthState.Error).exception, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,6 +170,7 @@ fun ShowRegisterForm() {
         OutlinedTextField(
             value = onNameChanged,
             onValueChange = { onNameChanged = it },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -154,6 +179,7 @@ fun ShowRegisterForm() {
 
         OutlinedTextField(
             value = onEmailChange,
+            singleLine = true,
             onValueChange = { onEmailChange = it },
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,6 +191,7 @@ fun ShowRegisterForm() {
 
         OutlinedTextField(
             value = password,
+            singleLine = true,
             onValueChange = { password = it },
             modifier = Modifier
                 .fillMaxWidth()
@@ -172,16 +199,30 @@ fun ShowRegisterForm() {
             label = { Text(text = "अपना कूटशब्द(pass..) भरें") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
-        OutlinedButton(onClick = { /*TODO*/ }) {
+        OutlinedButton(onClick = { authViewModel.signUp(onEmailChange,password) }) {
             Text(text = "Register Now")
         }
     }
 }
+
+// LOGIN FORM
 @Composable
-fun ShowLoginForm() {
+fun ShowLoginForm(authViewModel: AuthViewModel,navController: NavController) {
     var onEmailChange by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect (authState.value){
+        when(authState.value){
+            is AuthState.Authenticated ->{
+                navController.navigate("feed_screen")
+            }
+            is AuthState.Error ->{
+                Toast.makeText(context,(authState.value as AuthState.Error).exception, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,6 +231,7 @@ fun ShowLoginForm() {
         OutlinedTextField(
             value = onEmailChange,
             onValueChange = { onEmailChange = it },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -200,28 +242,15 @@ fun ShowLoginForm() {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             label = { Text(text = "अपना कूटशब्द(pass..) भरें") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
-        OutlinedButton(onClick = { /*TODO*/ }) {
+        OutlinedButton(onClick = { authViewModel.login(email = onEmailChange,password = password) }) {
             Text(text = "LoginToMbm")
         }
     }
 }
-//@Composable
-//fun AnimatedCartoon(offsetX: Float) {
-//    Box(
-//        modifier = Modifier
-//            .offset(x = offsetX.dp)
-//            .height(100.dp)
-//            .width(100.dp)
-//    ) {
-//        Text(
-//            text = "🐱", // Replace with your animated cartoon asset
-//            fontSize = 40.sp
-//        )
-//    }
-//}

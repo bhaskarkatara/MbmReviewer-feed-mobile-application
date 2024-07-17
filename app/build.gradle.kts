@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -61,6 +62,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 //     implementation(libs.accompanist.navigation.material) // Uncomment if using Accompanist for navigation material
     implementation(libs.androidx.activity.compose)
+    implementation(libs.firebase.auth)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.runtime.livedata)
     androidTestImplementation(libs.androidx.navigation.testing)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
