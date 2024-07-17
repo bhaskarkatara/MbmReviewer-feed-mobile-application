@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "998485153252",
+    "project_id": "mbmkadhumdhadaka",
+    "storage_bucket": "mbmkadhumdhadaka.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998485153252:android:983871ece5624e992223f1",
+        "android_client_info": {
+          "package_name": "com.example.mbmkadhumdhadaka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmcUSJPGogMsqD6WhnekEy5eUPsMGyZQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
