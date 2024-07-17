@@ -50,6 +50,13 @@ android {
 }
 
 dependencies {
+    implementation (libs.androidx.activity.compose.v140)
+    implementation (libs.ui)
+    implementation( libs.androidx.foundation)
+    implementation (libs.material3)
+    implementation (libs.androidx.navigation.compose.v240)
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 //     implementation(libs.accompanist.navigation.material) // Uncomment if using Accompanist for navigation material
