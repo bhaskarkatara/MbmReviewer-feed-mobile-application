@@ -1,16 +1,15 @@
 package com.example.mbmkadhumdhadaka
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,17 +30,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             val authViewModel: AuthViewModel = viewModel()
             MbmKaDhumDhadakaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(authViewModel)
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+                    Navigation(authViewModel = authViewModel)
                 }
             }
         }
     }
 
-     fun onNewIntent(intent: Intent?) {
-        if (intent != null) {
-            super.onNewIntent(intent)
-        }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
         // Handle the incoming intent if it's an email link
         handleEmailLink(intent)
     }
@@ -49,8 +46,9 @@ class MainActivity : ComponentActivity() {
     private fun handleEmailLink(intent: Intent?) {
         val data = intent?.data
         val authViewModel = AuthViewModel()
+//        val authState = authViewModel.authState.observeAsState()
 
-        if (data != null && authViewModel.authState.isSignInWithEmailLink(data.toString())) {
+        if (data != null && authViewModel.auth.isSignInWithEmailLink(data.toString())) {
             val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
             val email = sharedPreferences.getString("email", null)
 
@@ -74,9 +72,6 @@ fun Navigation(authViewModel: AuthViewModel) {
         }
         composable(Screens.FeedScreen.route) {
             FeedScreen(navController = navController, authViewModel = authViewModel)
-            BackHandler {
-                (context as MainActivity).finish()
-            }
         }
     }
 }

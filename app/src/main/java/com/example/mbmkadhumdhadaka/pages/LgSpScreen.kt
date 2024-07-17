@@ -1,5 +1,6 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
     val showDialog = remember {
         mutableStateOf(false)
     }
+    val emailLinkClick = remember { mutableStateOf(false) }
  val context = LocalContext.current
     val authState = authViewModel.authState.observeAsState()
     LaunchedEffect (authState.value){
@@ -70,6 +72,7 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
             OutlinedButton(onClick = {
                 registerClick.value = true
                 loginClick.value = false
+                emailLinkClick.value = false
             }) {
                 Text(text = "Register")
 
@@ -78,6 +81,7 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
             OutlinedButton(onClick = {
                 loginClick.value= true
                 registerClick.value = false
+                emailLinkClick.value = false
             }) {
                 Text(text = "Login")
 
@@ -87,11 +91,10 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
         when (authState.value) {
             is AuthState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             else -> {
-                if (registerClick.value) {
-                    ShowRegisterForm(authViewModel, navController)
-                }
-                if (loginClick.value) {
-                    ShowLoginForm(authViewModel, navController)
+                when {
+                    registerClick.value -> ShowRegisterForm(authViewModel, navController)
+                    loginClick.value -> ShowLoginForm(authViewModel, navController)
+                    emailLinkClick.value -> ShowEmailLinkForm(authViewModel)
                 }
             }
         }
@@ -144,6 +147,39 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
     }
 }
 
+@Composable
+fun ShowEmailLinkForm(authViewModel: AuthViewModel) {
+    var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        OutlinedTextField(
+            value = email,
+            singleLine = true,
+            onValueChange = { email = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            label = { Text(text = "Enter your email address") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
+        )
+        Button(
+            onClick = {
+                val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                sharedPreferences.edit().putString("email", email).apply()
+                authViewModel.sendSignInLink(email)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text(text = "Send Sign-In Link")
+        }
+    }
+}
 @Composable
 fun ShowRegisterForm(authViewModel: AuthViewModel,navController: NavController) {
     var onNameChanged by remember { mutableStateOf("") }
