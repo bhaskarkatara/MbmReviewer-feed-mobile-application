@@ -48,28 +48,3 @@ fun FeedScreen(navController: NavController,authViewModel: AuthViewModel) {
 
 
 
-
-//    val authState = authViewModel.authState.observeAsState()
-//    LaunchedEffect(authState.value) {
-//        when (authState.value) {
-//            is AuthState.Unauthenticated -> {
-//                navController.navigate(Screens.LgSpScreen.route)
-//            }
-//
-//            else -> Unit
-//        }
-//    }
-//
-//    Column(
-//        modifier = Modifier.fillMaxSize().padding(top = 70.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text(text = "hii feed screen")
-//        Button(onClick = { authViewModel.signOut() }) {
-//            Text(text = "signout")
-//        }
-//    }
-//}
-
-
-
