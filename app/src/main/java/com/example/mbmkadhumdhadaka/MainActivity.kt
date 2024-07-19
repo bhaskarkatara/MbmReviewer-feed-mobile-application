@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -108,15 +110,18 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun BottomNavigationBar(navController: NavController){
         BottomNavigation(
-            modifier = Modifier.navigationBarsPadding() // Ensure padding for the bottom navigation
+            modifier = Modifier.navigationBarsPadding(), // Ensure padding for the bottom navigation
+//                .background(Color(0xFFFFC0CB)),
+            backgroundColor = Color(0xFFFFC0CB),
+            contentColor = Color.Black
         ) {
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = currentBackStackEntry?.destination?.route
 
 
             BottomNavigationItem(
-                icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-              label = { Text(text = "Home")},
+                icon = { Icon(Icons.Filled.Home, contentDescription = "Feed") },
+              label = { Text(text = "Feed")},
                 selected = currentRoute == Screens.FeedScreen.route,
                 onClick = {
                     navController.navigate(Screens.FeedScreen.route) {
