@@ -57,7 +57,8 @@ dependencies {
     implementation (libs.material3)
     implementation (libs.androidx.navigation.compose.v240)
 
-
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 //     implementation(libs.accompanist.navigation.material) // Uncomment if using Accompanist for navigation material
