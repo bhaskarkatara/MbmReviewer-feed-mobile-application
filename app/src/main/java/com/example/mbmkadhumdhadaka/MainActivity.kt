@@ -1,8 +1,10 @@
 package com.example.mbmkadhumdhadaka
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,41 +39,44 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        // Handle the incoming intent if it's an email link
-        handleEmailLink(intent)
-    }
+//    override fun onNewIntent(intent: Intent) {
+//        super.onNewIntent(intent)
+//        Log.d(TAG, "one: onNewIntent triggered")
+//        // Handle the incoming intent if it's an email link
+//        handleEmailLink(intent)
+//    }
+//
+//    private fun handleEmailLink(intent: Intent?) {
+//        Log.d(TAG, "two: handle triggered")
+//        val data = intent?.data
+//        val authViewModel = AuthViewModel()
+////        val authState = authViewModel.authState.observeAsState()
+//
+//        if (data != null && authViewModel.auth.isSignInWithEmailLink(data.toString())) {
+//            val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+//            val email = sharedPreferences.getString("email", null)
+//
+//            if (email != null) {
+//                authViewModel.signInWithEmailLink(email, data.toString())
+//            } else {
+//                // Prompt user to enter their email address if email not found in preferences
+//            }
+//        }
+//    }
+//}
 
-    private fun handleEmailLink(intent: Intent?) {
-        val data = intent?.data
-        val authViewModel = AuthViewModel()
-//        val authState = authViewModel.authState.observeAsState()
+    @Composable
+    fun Navigation(authViewModel: AuthViewModel) {
+        val navController = rememberNavController()
+        val context = LocalContext.current
 
-        if (data != null && authViewModel.auth.isSignInWithEmailLink(data.toString())) {
-            val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            val email = sharedPreferences.getString("email", null)
-
-            if (email != null) {
-                authViewModel.signInWithEmailLink(email, data.toString())
-            } else {
-                // Prompt user to enter their email address if email not found in preferences
+        NavHost(navController = navController, startDestination = Screens.LgSpScreen.route) {
+            composable(Screens.LgSpScreen.route) {
+                LgSpScreen(navController = navController, authViewModel = authViewModel)
             }
-        }
-    }
-}
-
-@Composable
-fun Navigation(authViewModel: AuthViewModel) {
-    val navController = rememberNavController()
-    val context = LocalContext.current
-
-    NavHost(navController = navController, startDestination = Screens.LgSpScreen.route) {
-        composable(Screens.LgSpScreen.route) {
-            LgSpScreen(navController = navController, authViewModel = authViewModel)
-        }
-        composable(Screens.FeedScreen.route) {
-            FeedScreen(navController = navController, authViewModel = authViewModel)
+            composable(Screens.FeedScreen.route) {
+                FeedScreen(navController = navController, authViewModel = authViewModel)
+            }
         }
     }
 }

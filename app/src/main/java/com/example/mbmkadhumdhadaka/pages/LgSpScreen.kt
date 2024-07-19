@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.google.android.gms.auth.api.Auth
 
 @Composable
 fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
@@ -170,7 +171,7 @@ fun ShowEmailLinkForm(authViewModel: AuthViewModel) {
             onClick = {
                 val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
                 sharedPreferences.edit().putString("email", email).apply()
-                authViewModel.sendSignInLink(email)
+//                authViewModel.sendSignInLink(email)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -182,7 +183,7 @@ fun ShowEmailLinkForm(authViewModel: AuthViewModel) {
 }
 @Composable
 fun ShowRegisterForm(authViewModel: AuthViewModel,navController: NavController) {
-    var onNameChanged by remember { mutableStateOf("") }
+
     var onEmailChange by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -192,8 +193,12 @@ fun ShowRegisterForm(authViewModel: AuthViewModel,navController: NavController) 
             is AuthState.Authenticated ->{
                 navController.navigate("feed_screen")
             }
+            is AuthState.EmailVerificationSent ->{
+                Toast.makeText(context,"Verification email sent", Toast.LENGTH_SHORT).show()
+            }
             is AuthState.Error ->{
                 Toast.makeText(context,(authState.value as AuthState.Error).exception, Toast.LENGTH_SHORT).show()
+                authViewModel.resetError()
             }
             else -> Unit
         }
@@ -203,15 +208,6 @@ fun ShowRegisterForm(authViewModel: AuthViewModel,navController: NavController) 
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        OutlinedTextField(
-            value = onNameChanged,
-            onValueChange = { onNameChanged = it },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            label = { Text(text = "अपना नाम दर्ज करें") }
-        )
 
         OutlinedTextField(
             value = onEmailChange,
@@ -253,8 +249,12 @@ fun ShowLoginForm(authViewModel: AuthViewModel,navController: NavController) {
             is AuthState.Authenticated ->{
                 navController.navigate("feed_screen")
             }
+            is AuthState.EmailVerificationPending ->{
+                Toast.makeText(context,"Please verify your email first", Toast.LENGTH_SHORT).show()
+            }
             is AuthState.Error ->{
                 Toast.makeText(context,(authState.value as AuthState.Error).exception, Toast.LENGTH_SHORT).show()
+                authViewModel.resetError()
             }
             else -> Unit
         }

@@ -1,15 +1,17 @@
 package com.example.mbmkadhumdhadaka.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
-   val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
@@ -18,7 +20,7 @@ class AuthViewModel : ViewModel() {
     }
 
     private fun checkAuthStatus() {
-        _authState.value = if (auth.currentUser != null) {
+        _authState.value = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
             AuthState.Authenticated
         } else {
             AuthState.Unauthenticated
@@ -35,7 +37,16 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
+                    val user = auth.currentUser
+                    if (user?.isEmailVerified == true) {
+                        _authState.value = AuthState.Authenticated
+                    } else {
+                        if (user != null) {
+                            startEmailVerificationCheck(user)
+                            _authState.value = AuthState.EmailVerificationPending
+                        }
+//                        _authState.value = AuthState.Error("Please verify your email first")
+                    }
                 } else {
                     _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
                 }
@@ -53,58 +64,44 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
+                    auth.currentUser?.sendEmailVerification()
+                        ?.addOnCompleteListener { verificationTask ->
+                            if (verificationTask.isSuccessful) {
+                                _authState.value = AuthState.EmailVerificationSent
+                            } else {
+                                _authState.value = AuthState.Error(
+                                    verificationTask.exception?.message
+                                        ?: "Failed to send verification email"
+                                )
+                            }
+                        }
                 } else {
                     _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
                 }
             }
         }
     }
-    fun sendSignInLink(email: String) {
-        if (email.isEmpty()) {
-            _authState.value = AuthState.Error("Please provide an email address")
-            return
-        }
-
-        val actionCodeSettings = ActionCodeSettings.newBuilder()
-            .setUrl("https://mbmkadhumdhadaka.page.link/Tbeh") // Replace with your URL
-            .setHandleCodeInApp(true)
-            .setIOSBundleId("com.example.ios")
-            .setAndroidPackageName(
-                "com.example.mbmkadhumdhadaka",
-                true, /* installIfNotAvailable */
-                "12"    /* minimumVersion */
-            )
-            .build()
-
-        auth.sendSignInLinkToEmail(email, actionCodeSettings)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = AuthState.EmailLinkSent
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message ?: "Failed to send email link")
-                }
-            }
-    }
-    fun signInWithEmailLink(email: String, emailLink: String) {
-        if (auth.isSignInWithEmailLink(emailLink)) {
-            auth.signInWithEmailLink(email, emailLink)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        _authState.value = AuthState.Authenticated
-                    } else {
-                        _authState.value = AuthState.Error(task.exception?.message ?: "Failed to sign in with email link")
+    private fun startEmailVerificationCheck(user: FirebaseUser) {
+        viewModelScope.launch {
+            while (!user.isEmailVerified) {
+                delay(5000) // Check every 5 seconds
+                user.reload().addOnCompleteListener { reloadTask ->
+                    if (reloadTask.isSuccessful) {
+                        if (user.isEmailVerified) {
+                            _authState.value = AuthState.Authenticated
+                        }
                     }
                 }
-        } else {
-            _authState.value = AuthState.Error("Invalid email link")
+            }
         }
     }
+
 
     fun signOut() {
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
     }
+
     fun resetError() {
         _authState.value = null
     }
@@ -114,6 +111,7 @@ sealed class AuthState {
     object Authenticated : AuthState()
     object Unauthenticated : AuthState()
     object Loading : AuthState()
-    object EmailLinkSent : AuthState()
+    object EmailVerificationSent : AuthState()
+    object EmailVerificationPending : AuthState()
     data class Error(val exception: String) : AuthState()
 }
