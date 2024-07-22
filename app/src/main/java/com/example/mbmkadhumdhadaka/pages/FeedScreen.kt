@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
+import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 
 @Composable
@@ -47,7 +48,7 @@ fun FeedScreen(navController: NavController, authViewModel: AuthViewModel) {
                     Icon(imageVector = Icons.Default.Star, contentDescription = "rate this app")
                 }
                 FloatingActionButton(
-                    onClick = { /* TODO: Handle third menu item click */ },
+                    onClick = { navController.navigate("create_post_screen") },
                     containerColor = MaterialTheme.colorScheme.secondary
                 ) {
                     Icon(imageVector = Icons.Default.Edit, contentDescription = "create Post")
