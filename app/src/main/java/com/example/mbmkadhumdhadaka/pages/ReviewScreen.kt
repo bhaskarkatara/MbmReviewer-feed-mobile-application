@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 //import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.sharp.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,14 +29,6 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
         topBar = {
             TopAppBar(
                 title = { Text(text = "Reviews") },
-//                navigationIcon = {
-//                    IconButton(onClick = { navController.navigateUp() }) {
-//                        Icon(
-//                            imageVector = Icons.Filled.ArrowBack,
-//                            contentDescription = "Back"
-//                        )
-//                    }
-//                },
                 actions = {
                     IconButton(onClick = { showFilterDialog = true }) {
                         Icon(
@@ -43,18 +36,35 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
                             contentDescription = "Filter"
                         )
                     }
-                },
-//                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFFFC0CB))
+                }
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(filteredReviews) { review ->
-                ReviewCard(review = review)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 72.dp)
+            ) {
+                items(filteredReviews) { review ->
+                    ReviewCard(review = review)
+                }
+            }
+
+            FloatingActionButton(
+                onClick = { /* TODO: Implement Add Review functionality */ },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Sharp.Add,
+                    contentDescription = "Add Review"
+                )
             }
         }
     }
@@ -69,7 +79,6 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
         )
     }
 }
-
 @Composable
 fun ReviewCard(review: ReviewModel) {
     Card(
