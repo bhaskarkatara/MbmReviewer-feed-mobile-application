@@ -25,6 +25,7 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
     var filteredReviews by remember { mutableStateOf(DummyData.reviews) }
     var showFilterDialog by remember { mutableStateOf(false) }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -56,7 +57,7 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
             }
 
             FloatingActionButton(
-                onClick = { /* TODO: Implement Add Review functionality */ },
+                onClick = {  navController.navigate("create_review_screen")},
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
@@ -68,6 +69,7 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
             }
         }
     }
+
 
     if (showFilterDialog) {
         FilterDialog(

@@ -8,5 +8,5 @@ sealed class Screens (val route: String){
     data object ProfileScreen : Screens(route = "profile_screen")
     data object ReviewScreen :Screens(route = "review_screen")
     data object CreatePostScreen :Screens("create_post_screen")
-
+   data object CreateReviewScreen : Screens("create_review_screen")
 }

@@ -34,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mbmkadhumdhadaka.pages.CreatePost
+import com.example.mbmkadhumdhadaka.pages.CreateReviewScreen
 import com.example.mbmkadhumdhadaka.pages.FeedScreen
 import com.example.mbmkadhumdhadaka.pages.LgSpScreen
 import com.example.mbmkadhumdhadaka.pages.ProfileScreen
@@ -63,12 +64,14 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val context = LocalContext.current
         var isCreatePostScreen by remember { mutableStateOf(false) }
+        var isCreateReviewScreen by remember { mutableStateOf(false) }
 
         val authState = authViewModel.authState.observeAsState()
 
         Scaffold(
             bottomBar = {
-                if (authState.value is AuthState.Authenticated && !isCreatePostScreen) {
+                if (authState.value is AuthState.Authenticated && !isCreatePostScreen &&
+                    (authState.value is AuthState.Authenticated && !isCreateReviewScreen)) {
                     BottomNavigationBar(navController)
                 }
             }
@@ -87,6 +90,7 @@ class MainActivity : ComponentActivity() {
                         (context as? Activity)?.finish()
                     }
                     isCreatePostScreen = false
+                    isCreateReviewScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
                     FeedScreen(navController = navController, authViewModel = authViewModel)
@@ -94,18 +98,27 @@ class MainActivity : ComponentActivity() {
                         (context as? Activity)?.finish()
                     }
                     isCreatePostScreen = false
+                    isCreateReviewScreen = false
                 }
                 composable(Screens.ReviewScreen.route) {
                     ReviewScreen(navController = navController, authViewModel = authViewModel)
                     isCreatePostScreen = false
+                    isCreateReviewScreen = false
                 }
                 composable(Screens.ProfileScreen.route) {
                     ProfileScreen(navController = navController, authViewModel = authViewModel)
                     isCreatePostScreen = false
+                    isCreateReviewScreen = false
                 }
                 composable(Screens.CreatePostScreen.route) {
                     CreatePost(navController, authViewModel)
                     isCreatePostScreen = true
+                    isCreateReviewScreen = false
+                }
+                composable(Screens.CreateReviewScreen.route){
+                    CreateReviewScreen(navController, authViewModel)
+                    isCreatePostScreen = false
+                    isCreateReviewScreen = true
                 }
             }
         }

@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.room.ktx)
     androidTestImplementation(libs.androidx.navigation.testing)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
