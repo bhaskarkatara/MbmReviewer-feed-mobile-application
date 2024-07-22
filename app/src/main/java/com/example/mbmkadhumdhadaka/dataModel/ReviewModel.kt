@@ -29,5 +29,17 @@ object DummyData {
             ratingStar = 4,
             tagPlaces = "Mess"
         )
+        ,
+        ReviewModel(
+            reviewText = "Love the new update! Much better.",
+            ratingStar = 4,
+            tagPlaces = "Mess"
+        ),
+        ReviewModel(
+            reviewText = "Love the new update! Much better.",
+            ratingStar = 4,
+            tagPlaces = "Mess"
+        )
+
     )
 }

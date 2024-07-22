@@ -48,7 +48,7 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 72.dp)
+                    .padding(bottom = 5.dp)
             ) {
                 items(filteredReviews) { review ->
                     ReviewCard(review = review)
@@ -73,12 +73,17 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
         FilterDialog(
             onDismiss = { showFilterDialog = false },
             onApplyFilter = { tag ->
-                filteredReviews = DummyData.reviews.filter { it.tagPlaces == tag }
+                filteredReviews = if (tag.isEmpty()) {
+                    DummyData.reviews
+                } else {
+                    DummyData.reviews.filter { it.tagPlaces == tag }
+                }
                 showFilterDialog = false
             }
         )
     }
 }
+
 @Composable
 fun ReviewCard(review: ReviewModel) {
     Card(
@@ -119,7 +124,7 @@ fun FilterDialog(onDismiss: () -> Unit, onApplyFilter: (String) -> Unit) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)) {
 
-                listOf("Mess", "Hostel", "Canteen,", "Library").forEach { tag ->
+                listOf("Mess", "Hostel", "Canteen", "Library").forEach { tag ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -136,6 +141,24 @@ fun FilterDialog(onDismiss: () -> Unit, onApplyFilter: (String) -> Unit) {
                         )
                     }
                 }
+//                if(selectedTag.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    )
+                    {
+                        RadioButton(
+                            selected = selectedTag.isEmpty(),
+                            onClick = { selectedTag = "" }
+                        )
+                        Text(
+                            text = "All tags",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+//                }
             }
         },
         confirmButton = {
