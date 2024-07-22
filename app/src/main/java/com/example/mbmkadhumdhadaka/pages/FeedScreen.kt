@@ -59,10 +59,10 @@ fun FeedScreen(navController: NavController, authViewModel: AuthViewModel) {
         if (isClickToFeedback) {
             AlertDialog(
                 onDismissRequest = { isClickToFeedback = false },
-                title = { Text(text = "Rate this app") },
+                title = { Text(text = "कैसा लगा ?") },
                 text = {
                     Column {
-                        Text(text = "How would you rate this app?")
+                        Text(text = "कुछ मन में हो तो लिख दीजिए")
                         TextField(
                             value = rating,
                             onValueChange = { rating = it },
