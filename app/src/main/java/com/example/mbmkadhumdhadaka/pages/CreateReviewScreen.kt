@@ -1,5 +1,6 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,11 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
@@ -32,10 +35,11 @@ import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 @Composable
 fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
     var reviewText by remember { mutableStateOf("") }
-    var selectedRating by remember { mutableStateOf(1) }
+    var selectedRating by remember { mutableIntStateOf(1) }
     var selectedTag by remember { mutableStateOf("Mess") }
-    var expanded by remember { mutableStateOf(false) }
-   val scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,7 +59,7 @@ fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewMode
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = " Content")
+                Text(text = "Content")
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -69,11 +73,7 @@ fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewMode
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(4.dp),
-//                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
-//                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-//                        keyboardActions = KeyboardActions.Default.copy(onDone = { /* Handle Done */ }),
-                        maxLines = 3,
-//                        minLines = 3 // Minimum lines to show
+                        maxLines = 3 // Maximum lines to show
                     )
                 }
 
@@ -95,21 +95,25 @@ fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewMode
                 Text(text = "Tag")
                 TextField(
                     value = selectedTag,
-                    label = { Text(text = "Library,Hostel,MBM.,etc")},
+                    label = { Text(text = "Library, Hostel, MBM., etc.") },
                     onValueChange = { selectedTag = it },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(onClick = { /* TODO: Save Review */ }) {
+                Button(onClick = {
+                    // TODO: Save Review
+                    Toast.makeText(context, "Submit Review", Toast.LENGTH_SHORT).show()
+                    // Reset state after showing Toast
+                    reviewText = ""
+                    selectedRating = 1
+                    selectedTag = "Mess"
+                }) {
                     Text(text = "Submit Review")
                 }
             }
         }
     }
 }
-
-
