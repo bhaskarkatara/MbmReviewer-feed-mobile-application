@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.sharp.Add
@@ -42,7 +43,7 @@ import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
-    var reviews by reviewsViewModel.reviewData.observeAsState(initial = emptyList())
+    val reviews by reviewsViewModel.reviewData.observeAsState(emptyList())
 
     var filteredReviews by remember { mutableStateOf(reviews) }
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -103,7 +104,7 @@ fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewMode
                 filteredReviews = if (tag.isEmpty()) {
                  reviews
                 } else {
-                   reviews.filter{it.tagPlaces == tag}
+                   reviews.filter {it.tagPlaces == tag}
                 }
                 showFilterDialog = false
             }

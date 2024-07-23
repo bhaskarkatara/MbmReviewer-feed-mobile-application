@@ -11,10 +11,10 @@ import kotlinx.coroutines.launch
 class ReviewsViewModel : ViewModel() {
 
     private val reviewRepository: ReviewsRepository = ReviewsRepository()
-    private val _reviewsData = MutableLiveData<ResultReviews<List<ReviewModel>>>()
+    private val _reviewsData = MutableLiveData<List<ReviewModel>>()
 
     // public var which is exposed to the UI
-    val reviewData: LiveData<ResultReviews<List<ReviewModel>>> = _reviewsData
+    val reviewData: LiveData<List<ReviewModel>> get()= _reviewsData
 
     init {
         loadReviews()
@@ -26,19 +26,18 @@ class ReviewsViewModel : ViewModel() {
                 reviewRepository.createReviewsFormat(content, rating, tag)
                 loadReviews()
             } catch (e: Exception) {
-                _reviewsData.value = ResultReviews.Error("Failed to create review: ${e.message}")
+//                _reviewsData.value = ResultReviews.Error("Failed to create review: ${e.message}")
             }
         }
     }
 
     private fun loadReviews() {
-        _reviewsData.value = ResultReviews.Loading
+//        _reviewsData.value = ResultRevie
         viewModelScope.launch {
             try {
-                val result = reviewRepository.getReviews()
-                _reviewsData.value = ResultReviews.Success(result)
+              _reviewsData.value = reviewRepository.getReviews()
             } catch (e: Exception) {
-                _reviewsData.value = ResultReviews.Error("Failed to load data: ${e.message}")
+//                _reviewsData.value = ResultReviews.Error("Failed to load data: ${e.message}")
             }
         }
     }
@@ -47,5 +46,5 @@ class ReviewsViewModel : ViewModel() {
 sealed class ResultReviews<out T> {
     data class Success<out T>(val data: T) : ResultReviews<T>()
     data class Error(val exception: String) : ResultReviews<Nothing>()
-    object Loading : ResultReviews<Nothing>()
+//    object Loading : ResultReviews<Nothing>()
 }
