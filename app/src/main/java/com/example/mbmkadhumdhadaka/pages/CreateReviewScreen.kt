@@ -106,12 +106,17 @@ fun CreateReviewScreen(navController: NavController, reviewsViewModel: ReviewsVi
 
                 Button(onClick = {
                     // TODO: Save Review
+                    if(reviewText.isEmpty() || selectedTag.isEmpty() || selectedRating == 0){
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
                       reviewsViewModel.createReviewsFormat(reviewText,rating = selectedRating,tag = selectedTag)
                     Toast.makeText(context, "Submit Review", Toast.LENGTH_SHORT).show()
                     // Reset state after showing Toast
                     reviewText = ""
                     selectedRating = 1
                     selectedTag = "Mess"
+                    navController.navigate("review_screen")
                 }) {
                     Text(text = "Submit Review")
                 }

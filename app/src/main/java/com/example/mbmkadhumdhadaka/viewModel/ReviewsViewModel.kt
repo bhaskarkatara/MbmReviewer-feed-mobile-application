@@ -23,6 +23,10 @@ class ReviewsViewModel : ViewModel() {
     }
 
     fun createReviewsFormat(content: String, rating: Int, tag: String) {
+//        if(content.isEmpty() || rating == 0 || tag.isEmpty()){
+//            _reviewsData.value = ResultReviews.Error("Please fill all fields")
+//            return
+//        }
         viewModelScope.launch {
             try {
                 reviewRepository.createReviewsFormat(content, rating, tag)
