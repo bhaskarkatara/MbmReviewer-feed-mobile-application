@@ -15,6 +15,7 @@ import androidx.compose.material.icons.sharp.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,18 +39,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 //import androidx.compose.runtime.s
 import com.example.mbmkadhumdhadaka.dataModel.ReviewModel
+import com.example.mbmkadhumdhadaka.viewModel.ResultReviews
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
-    val reviews by reviewsViewModel.reviewData.observeAsState(emptyList())
+    val reviewsState by reviewsViewModel.reviewData.observeAsState(ResultReviews.Loading)
 
-    var filteredReviews by remember { mutableStateOf(reviews) }
+    var filteredReviews by remember { mutableStateOf(emptyList<ReviewModel>()) }
     var showFilterDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(reviews) {
-        filteredReviews = reviews
+    LaunchedEffect(reviewsState) {
+        if (reviewsState is ResultReviews.Success) {
+            filteredReviews = (reviewsState as ResultReviews.Success).data
+        }
     }
 
     Scaffold(
@@ -72,15 +76,32 @@ fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewMode
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 5.dp)
-            ) {
-                items(filteredReviews) { review ->
-                    ReviewCard(review = review)
+            when (reviewsState) {
+                is ResultReviews.Loading -> {
+                    // Show loading indicator
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is ResultReviews.Error -> {
+                    // Show error message
+                    Text(
+                        text = (reviewsState as ResultReviews.Error).exception,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                is ResultReviews.Success -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 5.dp)
+                    ) {
+                        items(filteredReviews) { review ->
+                            ReviewCard(review = review)
+                        }
+                    }
                 }
             }
+
 
             FloatingActionButton(
                 onClick = {  navController.navigate("create_review_screen")},
@@ -102,9 +123,11 @@ fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewMode
             onDismiss = { showFilterDialog = false },
             onApplyFilter = { tag ->
                 filteredReviews = if (tag.isEmpty()) {
-                 reviews
+                    reviewsState.let { state ->
+                        if (state is ResultReviews.Success) state.data else emptyList()
+                    }
                 } else {
-                   reviews.filter {it.tagPlaces == tag}
+                    (reviewsState as? ResultReviews.Success)?.data?.filter { it.tagPlaces == tag } ?: emptyList()
                 }
                 showFilterDialog = false
             }

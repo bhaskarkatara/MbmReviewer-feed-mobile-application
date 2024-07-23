@@ -1,9 +1,9 @@
 package com.example.mbmkadhumdhadaka.dataModel
 
 data class ReviewModel(
-    val reviewText: String,
-    val ratingStar: Int,
-    val tagPlaces : String
+    val reviewText: String = "",
+    val ratingStar: Int = 0,
+    val tagPlaces : String = ""
 )
 
 object DummyData {
