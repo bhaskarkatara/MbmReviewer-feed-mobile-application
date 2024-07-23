@@ -42,6 +42,7 @@ import com.example.mbmkadhumdhadaka.pages.ReviewScreen
 import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -51,16 +52,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val authViewModel: AuthViewModel = viewModel()
+            val reviewViewModel : ReviewsViewModel = viewModel()
+
             MbmKaDhumDhadakaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(authViewModel = authViewModel)
+                    Navigation(authViewModel = authViewModel,reviewsViewModel = reviewViewModel)
                 }
             }
         }
     }
 
     @Composable
-    fun Navigation(authViewModel: AuthViewModel) {
+    fun Navigation(authViewModel: AuthViewModel,reviewsViewModel: ReviewsViewModel) {
         val navController = rememberNavController()
         val context = LocalContext.current
         var isCreatePostScreen by remember { mutableStateOf(false) }
@@ -101,7 +104,7 @@ class MainActivity : ComponentActivity() {
                     isCreateReviewScreen = false
                 }
                 composable(Screens.ReviewScreen.route) {
-                    ReviewScreen(navController = navController, authViewModel = authViewModel)
+                    ReviewScreen(navController = navController,reviewsViewModel = reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
                 }
@@ -116,7 +119,7 @@ class MainActivity : ComponentActivity() {
                     isCreateReviewScreen = false
                 }
                 composable(Screens.CreateReviewScreen.route){
-                    CreateReviewScreen(navController, authViewModel)
+                    CreateReviewScreen(navController, reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = true
                 }

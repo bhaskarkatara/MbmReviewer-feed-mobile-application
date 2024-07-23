@@ -30,10 +30,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun CreateReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
     var reviewText by remember { mutableStateOf("") }
     var selectedRating by remember { mutableIntStateOf(1) }
     var selectedTag by remember { mutableStateOf("Mess") }
@@ -105,6 +106,7 @@ fun CreateReviewScreen(navController: NavController, authViewModel: AuthViewMode
 
                 Button(onClick = {
                     // TODO: Save Review
+                      reviewsViewModel.createReviewsFormat(reviewText,rating = selectedRating,tag = selectedTag)
                     Toast.makeText(context, "Submit Review", Toast.LENGTH_SHORT).show()
                     // Reset state after showing Toast
                     reviewText = ""

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.sharp.Add
@@ -25,7 +24,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,16 +35,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.mbmkadhumdhadaka.dataModel.DummyData
+//import androidx.compose.runtime.s
 import com.example.mbmkadhumdhadaka.dataModel.ReviewModel
-import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
-    var filteredReviews by remember { mutableStateOf(DummyData.reviews) }
+fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
+    var reviews by reviewsViewModel.reviewData.observeAsState(initial = emptyList())
+
+    var filteredReviews by remember { mutableStateOf(reviews) }
     var showFilterDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(reviews) {
+        filteredReviews = reviews
+    }
 
     Scaffold(
         topBar = {
@@ -95,9 +101,9 @@ fun ReviewScreen(navController: NavController, authViewModel: AuthViewModel) {
             onDismiss = { showFilterDialog = false },
             onApplyFilter = { tag ->
                 filteredReviews = if (tag.isEmpty()) {
-                    DummyData.reviews
+                 reviews
                 } else {
-                    DummyData.reviews.filter { it.tagPlaces == tag }
+                   reviews.filter{it.tagPlaces == tag}
                 }
                 showFilterDialog = false
             }
