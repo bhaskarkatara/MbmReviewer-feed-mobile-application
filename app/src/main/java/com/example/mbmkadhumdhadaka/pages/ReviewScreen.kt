@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.sharp.Add
+import androidx.compose.material.icons.sharp.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -65,6 +66,12 @@ fun ReviewScreen(navController: NavController, reviewsViewModel: ReviewsViewMode
                         Icon(
                             imageVector = Icons.Filled.Info,
                             contentDescription = "Filter"
+                        )
+                    }
+                    IconButton(onClick = {reviewsViewModel.loadReviews()}){
+                        Icon(
+                            imageVector = Icons.Sharp.Refresh,
+                            contentDescription = "refresh"
                         )
                     }
                 }

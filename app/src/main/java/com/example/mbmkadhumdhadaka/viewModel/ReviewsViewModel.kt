@@ -21,6 +21,17 @@ class ReviewsViewModel : ViewModel() {
     init {
         loadReviews()
     }
+// fn to insert feedback of the app into firebase
+    fun createFeedback(content: String){
+        viewModelScope.launch {
+            try {
+                reviewRepository.createFeedback(content)
+            }
+            catch (e: Exception){
+                Log.e(TAG, "Error creating feedback: ${e.message}", e)
+            }
+        }
+    }
 
     fun createReviewsFormat(content: String, rating: Int, tag: String) {
 //        if(content.isEmpty() || rating == 0 || tag.isEmpty()){
@@ -39,7 +50,8 @@ class ReviewsViewModel : ViewModel() {
         }
     }
 
-    private fun loadReviews() {
+    // should be private
+     fun loadReviews() {
         _reviewsData.value = ResultReviews.Loading
         viewModelScope.launch {
             try {

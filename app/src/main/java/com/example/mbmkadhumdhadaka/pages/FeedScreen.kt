@@ -1,10 +1,14 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.content.ContentValues.TAG
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
@@ -12,13 +16,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
-import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
-fun FeedScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
-    var rating by remember { mutableStateOf("") }
+    var feedbackText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    // Initialize Firebase Database reference
+//    val database = FirebaseDatabase.getInstance()
+//    val userRef = database.getReference("feedback")
 
     Box(
         contentAlignment = Alignment.BottomEnd,
@@ -64,9 +74,8 @@ fun FeedScreen(navController: NavController, authViewModel: AuthViewModel) {
                     Column {
                         Text(text = "कुछ मन में हो तो लिख दीजिए")
                         TextField(
-                            value = rating,
-                            onValueChange = { rating = it },
-//                            label = { Text(text = "Rating") },
+                            value = feedbackText,
+                            onValueChange = { feedbackText = it },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -74,8 +83,14 @@ fun FeedScreen(navController: NavController, authViewModel: AuthViewModel) {
                 confirmButton = {
                     Button(
                         onClick = {
-                            // Handle rating submission here
-                            isClickToFeedback = false
+                            // Submit feedback to Firebase
+                            if (feedbackText.isNotEmpty()) {
+                              reviewsViewModel.createFeedback(feedbackText)
+                                Toast.makeText(context, "Thank You :)", Toast.LENGTH_SHORT).show()
+//                                Log.d(TAG, "FeedbackScreen: $userRef")
+                                feedbackText = "" // Clear the feedback text after submission
+                                isClickToFeedback = false
+                            }
                         }
                     ) {
                         Text(text = "Rate")

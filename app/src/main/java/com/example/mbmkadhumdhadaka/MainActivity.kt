@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                     isCreateReviewScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
-                    FeedScreen(navController = navController, authViewModel = authViewModel)
+                    FeedScreen(navController = navController,reviewsViewModel = reviewsViewModel)
                     BackHandler {
                         (context as? Activity)?.finish()
                     }
