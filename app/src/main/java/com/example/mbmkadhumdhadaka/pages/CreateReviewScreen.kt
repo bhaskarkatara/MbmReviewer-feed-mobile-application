@@ -54,7 +54,7 @@ fun CreateReviewScreen(navController: NavController, reviewsViewModel: ReviewsVi
         ) {
             Column(modifier = Modifier.padding(10.dp)) {
                 Text(
-                    text = "आपकी समीक्षाएँ/Reviews",
+                    text = "आपकी विचार /Reviews",
                     style = MaterialTheme.typography.headlineSmall
                 )
 
