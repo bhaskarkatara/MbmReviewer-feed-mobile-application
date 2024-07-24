@@ -16,6 +16,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.google.firebase.database.FirebaseDatabase
 
@@ -25,10 +31,7 @@ fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) 
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
     val context = LocalContext.current
-
-    // Initialize Firebase Database reference
-//    val database = FirebaseDatabase.getInstance()
-//    val userRef = database.getReference("feedback")
+    
 
     Box(
         contentAlignment = Alignment.BottomEnd,
@@ -63,6 +66,17 @@ fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) 
                     imageVector = if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add,
                     contentDescription = "Toggle Menu"
                 )
+            }
+            
+        }
+        Box {
+            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start) {
+                Text(text = "MbmKaDhumDhadaka...", style = TextStyle(
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+
+                ))
             }
         }
 
