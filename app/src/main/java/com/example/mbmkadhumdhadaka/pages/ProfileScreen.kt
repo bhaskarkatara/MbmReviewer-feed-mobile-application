@@ -75,6 +75,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
 
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -87,16 +88,32 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                 Spacer(modifier = Modifier.height(8.dp))
                 var name by remember { mutableStateOf("") }
                 var status by remember { mutableStateOf("") }
+                val maxCharName  = 15
+                val maxCharStatus = 20
+                val statuslength = status.length
+                val nameLength  = name.length
                 TextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = {  if (it.length <= maxCharName) {
+                        name = it
+                    }},
+                    trailingIcon = {
+                        Text(text = "${nameLength}/${maxCharName}")
+                    },
+                    singleLine = true,
                     label = { Text(text = "Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+//                Text(
+//                    text = "${maxCharLimit - charCount} characters remaining",
+//                    style = MaterialTheme.typography.body2
+//                )
                 TextField(
                     value = status,
                     onValueChange = { status = it },
+                    singleLine = true,
+                    trailingIcon = { Text(text = "${statuslength}/${maxCharStatus}")},
                     label = { Text(text = "Status") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -113,7 +130,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                 }
             }
         },
-        sheetPeekHeight = 0.dp,
+        sheetPeekHeight = 20.dp,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Profile", modifier = Modifier.padding(start = 10.dp))
@@ -228,17 +245,4 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             }
         )
     }
-
-
-
-
-//
-//    Column(
-//        modifier = Modifier.fillMaxSize().padding(top = 70.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//
-//        
-//    }
-
 }
