@@ -50,13 +50,27 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import com.example.mbmkadhumdhadaka.R
+import com.example.mbmkadhumdhadaka.Screens
+import com.example.mbmkadhumdhadaka.viewModel.AuthState
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
+    val isShowLogoutDialog = remember { mutableStateOf(false) }
+        val authState = authViewModel.authState.observeAsState()
+        LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Unauthenticated -> {
+                navController.navigate(Screens.LgSpScreen.route)
+            }
+            else -> Unit
+        }
+    }
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
@@ -182,31 +196,49 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                     Text(text = "your_status") // here should come the status which is enter by the user
                 }
             }
-            Spacer(modifier = Modifier.height(200.dp))
+            Spacer(modifier = Modifier.height(130.dp))
+            Button(onClick = {
+                isShowLogoutDialog.value= true
+            }) {
+            Text(text = "logOut")
+        }
+            Spacer(modifier = Modifier.height(100.dp))
             Text(text = "--Mugneeram Ji--", style = MaterialTheme.typography.subtitle1 ,color = Color.Magenta)
         }
+    }
+    if(isShowLogoutDialog.value){
+        AlertDialog(
+            onDismissRequest = { isShowLogoutDialog.value = false },
+            title = { Text(text = "Logout?") },
+            text = { Text(text = "Are you sure you want to logout?") },
+            confirmButton = {
+                Button(onClick = {
+                    isShowLogoutDialog.value = false
+                    authViewModel.signOut()
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    isShowLogoutDialog.value = false
+                }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
 
 
-//    val authState = authViewModel.authState.observeAsState()
-//    LaunchedEffect(authState.value) {
-//        when (authState.value) {
-//            is AuthState.Unauthenticated -> {
-//                navController.navigate(Screens.LgSpScreen.route)
-//            }
-//            else -> Unit
-//        }
-//    }
+
 //
 //    Column(
 //        modifier = Modifier.fillMaxSize().padding(top = 70.dp),
 //        horizontalAlignment = Alignment.CenterHorizontally
 //    ) {
 //
-//        Button(onClick = { authViewModel.signOut() }) {
-//            Text(text = "logOut")
-//        }
+//        
 //    }
 
 }
