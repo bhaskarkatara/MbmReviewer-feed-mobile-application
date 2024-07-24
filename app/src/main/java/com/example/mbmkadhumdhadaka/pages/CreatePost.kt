@@ -1,5 +1,9 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.content.Intent
+import android.provider.MediaStore
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,29 +46,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.room.util.appendPlaceholders
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-//@Composable
-fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
+fun CreatePost(
+    navController: NavController,
+    photoPickerLauncher: ActivityResultLauncher<Intent>,
+    videoPickerLauncher: ActivityResultLauncher<Intent>
+) {
     var postContent by remember { mutableStateOf("") }
-    var isShowMedia by remember {
-        mutableStateOf(false)
-    }
+    var isShowMedia by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Create post") },
+                title = { Text(text = "Create Post") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -74,9 +77,12 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
                     }
                 },
                 actions = {
-                    OutlinedButton(onClick = { /*TODO*/ },
-                        modifier = Modifier,
-                        colors = ButtonDefaults.buttonColors(containerColor = if(postContent.isNotEmpty())Color.Red else Color.Transparent)) {
+                    OutlinedButton(
+                        onClick = { /* TODO: Handle post action */ },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (postContent.isNotEmpty()) Color.Red else Color.Transparent
+                        )
+                    ) {
                         Text(text = "Post")
                     }
                 }
@@ -88,11 +94,10 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp) // Add any additional padding if needed
-            , horizontalAlignment = Alignment.Start 
+                .padding(16.dp),
+            horizontalAlignment = Alignment.Start
         ) {
 
-          
             Row {
                 Spacer(modifier = Modifier.width(5.dp))
                 Image(
@@ -108,12 +113,15 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            Box(modifier = Modifier  //Box allows you to stack multiple children on top of each other
-                .height(100.dp)
-                .fillMaxWidth()
-                .background(Color.Gray.copy(alpha = 0.1f), RectangleShape)
-                .border(1.dp, Color.Gray, RectangleShape)
-                .padding(16.dp)) {
+
+            Box(
+                modifier = Modifier
+                    .height(100.dp)
+                    .fillMaxWidth()
+                    .background(Color.Gray.copy(alpha = 0.1f), RectangleShape)
+                    .border(1.dp, Color.Gray, RectangleShape)
+                    .padding(16.dp)
+            ) {
                 BasicTextField(
                     value = postContent,
                     onValueChange = { postContent = it },
@@ -121,12 +129,11 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
-                    modifier = Modifier
-                        .fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                 )
                 if (postContent.isEmpty()) {
                     Text(
-                        text = "What's in your Mind",
+                        text = "What's in your mind",
                         color = Color.Gray,
                         fontSize = 16.sp,
                         modifier = Modifier
@@ -136,22 +143,36 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(10.dp))
-            IconButton(onClick = { isShowMedia = !isShowMedia}) {
-                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "pickers")
-            }
-            if(isShowMedia){
-                Text(text = "Photo", modifier = Modifier.clickable {
-                    //todo: add logic
-                })
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(text = "Video", modifier = Modifier.clickable {
-                    //todo: add logic
-                })
 
+            IconButton(onClick = { isShowMedia = !isShowMedia }) {
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "Pick Media")
             }
 
-            
+            if (isShowMedia) {
+                Column {
+                    Text(
+                        text = "Photo",
+                        modifier = Modifier
+                            .clickable {
+                                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                                photoPickerLauncher.launch(intent)
+                            }
+                            .padding(8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "Video",
+                        modifier = Modifier
+                            .clickable {
+                                val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                                videoPickerLauncher.launch(intent)
+                            }
+                            .padding(8.dp)
+                    )
+                }
+            }
         }
     }
 }

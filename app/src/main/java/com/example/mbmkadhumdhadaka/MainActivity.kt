@@ -4,8 +4,10 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -70,6 +72,13 @@ class MainActivity : ComponentActivity() {
         var isCreateReviewScreen by remember { mutableStateOf(false) }
 
         val authState = authViewModel.authState.observeAsState()
+        // Setup activity result launchers
+        val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Handle the photo result here
+        }
+        val videoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Handle the video result here
+        }
 
         Scaffold(
             bottomBar = {
@@ -114,7 +123,8 @@ class MainActivity : ComponentActivity() {
                     isCreateReviewScreen = false
                 }
                 composable(Screens.CreatePostScreen.route) {
-                    CreatePost(navController, authViewModel)
+                    CreatePost(navController, photoPickerLauncher = photoPickerLauncher,
+                        videoPickerLauncher = videoPickerLauncher)
                     isCreatePostScreen = true
                     isCreateReviewScreen = false
                 }
