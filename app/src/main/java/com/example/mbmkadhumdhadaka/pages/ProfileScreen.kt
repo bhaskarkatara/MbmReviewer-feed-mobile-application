@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
@@ -190,7 +191,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                     verticalAlignment = Alignment.Top,
                 )
                 {
-                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "account")
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "account")
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(text = "Name : ",style = MaterialTheme.typography.h6)
                     Spacer(modifier = Modifier.width(8.dp))

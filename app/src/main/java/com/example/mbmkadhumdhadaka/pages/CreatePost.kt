@@ -3,6 +3,8 @@ package com.example.mbmkadhumdhadaka.pages
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,10 +42,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.room.util.appendPlaceholders
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 
@@ -51,6 +58,9 @@ import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 //@Composable
 fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
     var postContent by remember { mutableStateOf("") }
+    var isShowMedia by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,7 +75,8 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
                 },
                 actions = {
                     OutlinedButton(onClick = { /*TODO*/ },
-                        modifier = Modifier,colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
+                        modifier = Modifier,
+                        colors = ButtonDefaults.buttonColors(containerColor = if(postContent.isNotEmpty())Color.Red else Color.Transparent)) {
                         Text(text = "Post")
                     }
                 }
@@ -80,6 +91,7 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
                 .padding(16.dp) // Add any additional padding if needed
             , horizontalAlignment = Alignment.Start 
         ) {
+
           
             Row {
                 Spacer(modifier = Modifier.width(5.dp))
@@ -96,17 +108,49 @@ fun CreatePost(navController: NavController, authViewModel: AuthViewModel) {
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            BasicTextField(
-                value = postContent,
-                onValueChange = { postContent = it },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier.height(100.dp).fillMaxWidth()
-                    .background(Color.Gray.copy(alpha = 0.1f), RectangleShape)
-                    .border(0.dp, Color.Gray,RectangleShape)
-                    .padding(16.dp)
-            )
+            Box(modifier = Modifier  //Box allows you to stack multiple children on top of each other
+                .height(100.dp)
+                .fillMaxWidth()
+                .background(Color.Gray.copy(alpha = 0.1f), RectangleShape)
+                .border(1.dp, Color.Gray, RectangleShape)
+                .padding(16.dp)) {
+                BasicTextField(
+                    value = postContent,
+                    onValueChange = { postContent = it },
+                    singleLine = false,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+                if (postContent.isEmpty()) {
+                    Text(
+                        text = "What's in your Mind",
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(16.dp),
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            IconButton(onClick = { isShowMedia = !isShowMedia}) {
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "pickers")
+            }
+            if(isShowMedia){
+                Text(text = "Photo", modifier = Modifier.clickable {
+                    //todo: add logic
+                })
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Video", modifier = Modifier.clickable {
+                    //todo: add logic
+                })
+
+            }
+
             
         }
     }
