@@ -41,6 +41,7 @@ import com.example.mbmkadhumdhadaka.pages.FeedScreen
 import com.example.mbmkadhumdhadaka.pages.LgSpScreen
 import com.example.mbmkadhumdhadaka.pages.ProfileScreen
 import com.example.mbmkadhumdhadaka.pages.ReviewScreen
+import com.example.mbmkadhumdhadaka.pages.SplashScreen
 import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
@@ -90,12 +91,17 @@ class MainActivity : ComponentActivity() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screens.LgSpScreen.route,
+                startDestination = Screens.SplashScreen.route,
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding) // Padding to account for system UI
                     .navigationBarsPadding() // Add padding for system navigation bar
             ) {
+                composable("splash_screen") {
+                    SplashScreen(navController, authViewModel)
+                    isCreatePostScreen = false
+                    isCreateReviewScreen = false
+                }
                 composable(Screens.LgSpScreen.route) {
                     LgSpScreen(navController = navController, authViewModel = authViewModel)
                     BackHandler {

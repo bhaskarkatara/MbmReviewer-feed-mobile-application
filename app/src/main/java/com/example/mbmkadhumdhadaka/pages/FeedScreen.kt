@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,15 +48,22 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
             .fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "MbmKaDhumDhadaka...",
-                style = TextStyle(
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic,
-                ),
-                modifier = Modifier.padding(16.dp)
-            )
+            Row {
+                Text(
+                    text = "MbmKaDhumDhadaka...",
+                    style = TextStyle(
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic,
+                    ),
+                    modifier = Modifier.padding(16.dp)
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "refresh")
+                }
+            }
+
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
                 .padding(10.dp)) {
@@ -167,7 +175,8 @@ fun PostCard(item: PostModel) {
                 contentDescription = "Post Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp).border(1.dp, Color.Gray,RectangleShape)
+                    .height(200.dp)
+                    .border(1.dp, Color.Gray, RectangleShape)
             )
         }
         Spacer(modifier = Modifier.height(3.dp))

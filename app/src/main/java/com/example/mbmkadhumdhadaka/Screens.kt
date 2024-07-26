@@ -9,4 +9,5 @@ sealed class Screens (val route: String){
     data object ReviewScreen :Screens(route = "review_screen")
     data object CreatePostScreen :Screens("create_post_screen")
    data object CreateReviewScreen : Screens("create_review_screen")
+    data object SplashScreen : Screens("splash_screen")
 }
