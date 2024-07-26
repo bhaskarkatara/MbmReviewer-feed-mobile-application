@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -14,9 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,8 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.dataModel.DummyData
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
@@ -38,58 +36,22 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
     val context = LocalContext.current
 
     Box(
-        contentAlignment = Alignment.BottomEnd,
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (isMenuExpanded) {
-                FloatingActionButton(
-                    onClick = { isClickToFeedback = true },
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ) {
-                    Icon(imageVector = Icons.Default.Star, contentDescription = "Rate this app")
-                }
-                FloatingActionButton(
-                    onClick = { navController.navigate("create_post_screen") },
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Create Post")
-                }
-            }
-
-            FloatingActionButton(
-                onClick = { isMenuExpanded = !isMenuExpanded },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Toggle Menu"
-                )
-            }
-        }
-
-        Box {
-            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = "MbmKaDhumDhadaka...",
-                    style = TextStyle(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
-
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp)) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = "MbmKaDhumDhadaka...",
+                style = TextStyle(
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                ),
+                modifier = Modifier.padding(16.dp)
+            )
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)) {
                 items(DummyData.posts) { item ->
                     PostCard(item)
                 }
@@ -131,6 +93,39 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
                 }
             )
         }
+
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.BottomEnd)
+        ) {
+            if (isMenuExpanded) {
+                FloatingActionButton(
+                    onClick = { isClickToFeedback = true },
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(imageVector = Icons.Default.Star, contentDescription = "Rate this app")
+                }
+                FloatingActionButton(
+                    onClick = { navController.navigate("create_post_screen") },
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Create Post")
+                }
+            }
+
+            FloatingActionButton(
+                onClick = { isMenuExpanded = !isMenuExpanded },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = "Toggle Menu"
+                )
+            }
+        }
     }
 }
 
@@ -149,6 +144,7 @@ fun PostCard(item: PostModel) {
                     contentDescription = "Owner Photo",
                     modifier = Modifier
                         .size(40.dp)
+                        .clip(CircleShape)
                         .padding(end = 8.dp)
                 )
                 Text(
@@ -162,7 +158,9 @@ fun PostCard(item: PostModel) {
             Image(
                 painter = rememberAsyncImagePainter(item.postImage),
                 contentDescription = "Post Image",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
             )
         }
     }
