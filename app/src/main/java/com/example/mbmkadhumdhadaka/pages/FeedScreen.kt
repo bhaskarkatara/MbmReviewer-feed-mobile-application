@@ -2,6 +2,8 @@ package com.example.mbmkadhumdhadaka.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,12 +12,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -160,8 +167,19 @@ fun PostCard(item: PostModel) {
                 contentDescription = "Post Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(200.dp).border(1.dp, Color.Gray,RectangleShape)
             )
+        }
+        Spacer(modifier = Modifier.height(3.dp))
+        Row{
+           IconButton(onClick = { /*TODO*/ }) {
+               Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
+           }
+            Spacer(modifier = Modifier.width(10.dp))
+//            Text(text = "Comment", modifier = Modifier.clickable { })
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
+            }
         }
     }
 }
