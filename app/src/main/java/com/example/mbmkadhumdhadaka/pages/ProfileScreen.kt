@@ -2,6 +2,8 @@ package com.example.mbmkadhumdhadaka.pages
 
 //package com.example.mbmkadhumdhadaka.pages
 
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,7 +63,7 @@ import com.example.mbmkadhumdhadaka.viewModel.AuthState
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel,photoPickerLauncher: ActivityResultLauncher<Intent>) {
     val isShowLogoutDialog = remember { mutableStateOf(false) }
         val authState = authViewModel.authState.observeAsState()
         LaunchedEffect(authState.value) {
@@ -167,7 +169,10 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .clickable { /* Handle profile picture click */ },
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        photoPickerLauncher.launch(intent)
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Image(

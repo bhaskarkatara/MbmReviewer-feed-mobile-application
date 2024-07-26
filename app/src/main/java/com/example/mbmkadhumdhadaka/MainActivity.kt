@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
                     isCreateReviewScreen = false
                 }
                 composable(Screens.ProfileScreen.route) {
-                    ProfileScreen(navController = navController, authViewModel = authViewModel)
+                    ProfileScreen(navController = navController, authViewModel = authViewModel,photoPickerLauncher = photoPickerLauncher)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
                 }
