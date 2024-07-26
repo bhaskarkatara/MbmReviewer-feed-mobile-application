@@ -5,6 +5,7 @@ data class PostModel(
     val postContent: String,
     val postImage: String,
     val postOwnerPhoto: String,
+    val postOwnerName: String = "Your Name"
 )
 
 object DummyData {

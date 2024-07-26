@@ -1,37 +1,41 @@
 package com.example.mbmkadhumdhadaka.pages
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.ui.focus.focusModifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import com.example.mbmkadhumdhadaka.R
+import com.example.mbmkadhumdhadaka.dataModel.DummyData
+import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
-import com.google.firebase.database.FirebaseDatabase
 
 @Composable
-fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) {
+fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
     val context = LocalContext.current
-    
 
     Box(
         contentAlignment = Alignment.BottomEnd,
@@ -67,16 +71,28 @@ fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) 
                     contentDescription = "Toggle Menu"
                 )
             }
-            
         }
+
         Box {
             Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start) {
-                Text(text = "MbmKaDhumDhadaka...", style = TextStyle(
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic,
+                Text(
+                    text = "MbmKaDhumDhadaka...",
+                    style = TextStyle(
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic,
+                    )
+                )
+            }
+        }
 
-                ))
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(DummyData.posts) { item ->
+                    PostCard(item)
+                }
             }
         }
 
@@ -97,11 +113,9 @@ fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) 
                 confirmButton = {
                     Button(
                         onClick = {
-                            // Submit feedback to Firebase
                             if (feedbackText.isNotEmpty()) {
-                              reviewsViewModel.createFeedback(feedbackText)
+                                reviewsViewModel.createFeedback(feedbackText)
                                 Toast.makeText(context, "Thank You :)", Toast.LENGTH_SHORT).show()
-//                                Log.d(TAG, "FeedbackScreen: $userRef")
                                 feedbackText = "" // Clear the feedback text after submission
                                 isClickToFeedback = false
                             }
@@ -115,6 +129,40 @@ fun FeedScreen(navController: NavController,reviewsViewModel: ReviewsViewModel) 
                         Text(text = "Cancel")
                     }
                 }
+            )
+        }
+    }
+}
+
+@Composable
+fun PostCard(item: PostModel) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = rememberAsyncImagePainter(item.postOwnerPhoto),
+                    contentDescription = "Owner Photo",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 8.dp)
+                )
+                Text(
+                    text = "Owner Name",
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Image(
+                painter = rememberAsyncImagePainter(item.postImage),
+                contentDescription = "Post Image",
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

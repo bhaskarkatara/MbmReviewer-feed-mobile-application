@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.coil.compose)
     implementation (libs.androidx.activity.compose.v140)
     implementation (libs.ui)
     implementation( libs.androidx.foundation)
