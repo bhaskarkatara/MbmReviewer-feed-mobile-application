@@ -1,8 +1,7 @@
 package com.example.mbmkadhumdhadaka.pages
 
-//package com.example.mbmkadhumdhadaka.pages
-
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -57,27 +56,33 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
+import coil.compose.rememberAsyncImagePainter
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel,photoPickerLauncher: ActivityResultLauncher<Intent>) {
+fun ProfileScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    photoPickerLauncher: ActivityResultLauncher<Intent>,
+    selectedPhotoUri: Uri?,
+    setSelectedPhotoUri: (Uri?) -> Unit
+) {
     val isShowLogoutDialog = remember { mutableStateOf(false) }
-        val authState = authViewModel.authState.observeAsState()
-        LaunchedEffect(authState.value) {
-        when (authState.value) {
-            is AuthState.Unauthenticated -> {
-                navController.navigate(Screens.LgSpScreen.route)
+    val authState by authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Unauthenticated) {
+            navController.navigate(Screens.LgSpScreen.route) {
+                popUpTo(Screens.ProfileScreen.route) { inclusive = true }
             }
-            else -> Unit
         }
     }
+
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
-
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -89,72 +94,78 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel,pho
             ) {
                 Text(text = "Edit Profile", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(8.dp))
+
                 var name by remember { mutableStateOf("") }
                 var status by remember { mutableStateOf("") }
-                val maxCharName  = 15
+                val maxCharName = 15
                 val maxCharStatus = 20
-                val statuslength = status.length
-                val nameLength  = name.length
+
                 TextField(
                     value = name,
-                    onValueChange = {  if (it.length <= maxCharName) {
-                        name = it
-                    }},
+                    onValueChange = {
+                        if (it.length <= maxCharName) {
+                            name = it
+                        }
+                    },
                     trailingIcon = {
-                        Text(text = "${nameLength}/${maxCharName}")
+                        Text(text = "${name.length}/${maxCharName}")
                     },
                     singleLine = true,
                     label = { Text(text = "Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-//                Text(
-//                    text = "${maxCharLimit - charCount} characters remaining",
-//                    style = MaterialTheme.typography.body2
-//                )
+
                 TextField(
                     value = status,
-                    onValueChange = { status = it },
+                    onValueChange = {
+                        if (it.length <= maxCharStatus) {
+                            status = it
+                        }
+                    },
+                    trailingIcon = {
+                        Text(text = "${status.length}/${maxCharStatus}")
+                    },
                     singleLine = true,
-                    trailingIcon = { Text(text = "${statuslength}/${maxCharStatus}")},
                     label = { Text(text = "Status") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                        Text(text = "Cancel", modifier = Modifier.clickable { scope.launch { sheetState.collapse() } })
+                    Text(
+                        text = "Cancel",
+                        modifier = Modifier.clickable { scope.launch { sheetState.collapse() } }
+                    )
                     Spacer(modifier = Modifier.width(20.dp))
-
-                        Text(text = "Save", modifier = Modifier.clickable { scope.launch { sheetState.collapse() } })
-
+                    Text(
+                        text = "Save",
+                        modifier = Modifier.clickable {
+                            // TODO: Save profile changes
+                            scope.launch { sheetState.collapse() }
+                        }
+                    )
                 }
             }
         },
         sheetPeekHeight = 20.dp,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Profile", modifier = Modifier.padding(start = 10.dp))
-
-                        },
+                title = { Text(text = "Profile", modifier = Modifier.padding(start = 10.dp)) },
                 actions = {
                     IconButton(onClick = {
-                        if(sheetState.isCollapsed){
-                        scope.launch {
-                            sheetState.expand()
-                        }
-                        } else{
-                            scope.launch {
-                                sheetState.collapse()
-                            }
+                        if (sheetState.isCollapsed) {
+                            scope.launch { sheetState.expand() }
+                        } else {
+                            scope.launch { sheetState.collapse() }
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                     }
                 }
-
             )
         }
     ) { innerPadding ->
@@ -176,7 +187,8 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel,pho
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = selectedPhotoUri?.let { rememberAsyncImagePainter(it) }
+                        ?: painterResource(id = R.drawable.ic_launcher_foreground), // Default image
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(100.dp)
@@ -188,48 +200,50 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel,pho
             Spacer(modifier = Modifier.height(20.dp))
 
             // Name Row
-
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp), horizontalAlignment = Alignment.Start) {
-                Row(
-                    verticalAlignment = Alignment.Top,
-                )
-                {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = "account")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp), horizontalAlignment = Alignment.Start
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
                     Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = "Name : ",style = MaterialTheme.typography.h6)
+                    Text(text = "Name:", style = MaterialTheme.typography.h6)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "your_name") // here should come the name which is enter by the user
-
+                    Text(text = "your_name") // Replace with user name
                 }
-
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Status Row
-                Row(
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = "status")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Info, contentDescription = "Status")
                     Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = "Status : " ,style = MaterialTheme.typography.h6)
+                    Text(text = "Status:", style = MaterialTheme.typography.h6)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "your_status") // here should come the status which is enter by the user
+                    Text(text = "your_status") // Replace with user status
                 }
             }
+
             Spacer(modifier = Modifier.height(130.dp))
+
             Button(onClick = {
-                isShowLogoutDialog.value= true
+                isShowLogoutDialog.value = true
             }) {
-            Text(text = "logOut")
-        }
+                Text(text = "Log Out")
+            }
+
             Spacer(modifier = Modifier.height(100.dp))
-            Text(text = "--Mugneeram Ji--", style = MaterialTheme.typography.subtitle1 ,color = Color.Magenta)
+
+            Text(
+                text = "--Mugneeram Ji--",
+                style = MaterialTheme.typography.h6,
+                color = Color.Magenta
+            )
         }
     }
-    if(isShowLogoutDialog.value){
+
+    if (isShowLogoutDialog.value) {
         AlertDialog(
             onDismissRequest = { isShowLogoutDialog.value = false },
             title = { Text(text = "Logout?") },

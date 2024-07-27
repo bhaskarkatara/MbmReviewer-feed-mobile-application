@@ -5,7 +5,9 @@ data class PostModel(
     val postContent: String,
     val postImage: String,
     val postOwnerPhoto: String,
-    val postOwnerName: String = "Your Name"
+    val postOwnerName: String = "Your Name",
+    val userId: String = "1", // UID of the user who created the post
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 object DummyData {
