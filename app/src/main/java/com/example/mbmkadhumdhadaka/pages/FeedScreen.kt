@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -168,6 +169,10 @@ fun PostCard(item: PostModel) {
                     text = "Owner Name",
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 )
+                Spacer(modifier = Modifier.width(120.dp))
+                IconButton(onClick = { /*TODO :open menu bar*/ }) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "dots")
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
@@ -191,6 +196,8 @@ fun PostCard(item: PostModel) {
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
             }
+            Spacer(modifier = Modifier.width(80.dp))
+            Text("30 minutes ago")
         }
     }
 }
