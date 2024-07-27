@@ -2,6 +2,7 @@ package com.example.mbmkadhumdhadaka.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -46,6 +47,7 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
     Box(
         modifier = Modifier
             .fillMaxSize()
+//        background(Color(0xFFF5F5F5))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row {

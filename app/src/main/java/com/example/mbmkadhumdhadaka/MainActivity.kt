@@ -65,12 +65,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     @Composable
     fun Navigation(authViewModel: AuthViewModel,reviewsViewModel: ReviewsViewModel) {
         val navController = rememberNavController()
         val context = LocalContext.current
         var isCreatePostScreen by remember { mutableStateOf(false) }
         var isCreateReviewScreen by remember { mutableStateOf(false) }
+        var isSplashScreen by remember { mutableStateOf(true) }
 
         val authState = authViewModel.authState.observeAsState()
         // Setup activity result launchers
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
         Scaffold(
             bottomBar = {
                 if (authState.value is AuthState.Authenticated && !isCreatePostScreen &&
-                    (authState.value is AuthState.Authenticated && !isCreateReviewScreen)) {
+                    (authState.value is AuthState.Authenticated && !isCreateReviewScreen) && !isSplashScreen ) {
                     BottomNavigationBar(navController)
                 }
             }
@@ -101,6 +103,7 @@ class MainActivity : ComponentActivity() {
                     SplashScreen(navController, authViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
+                    isSplashScreen = true
                 }
                 composable(Screens.LgSpScreen.route) {
                     LgSpScreen(navController = navController, authViewModel = authViewModel)
@@ -109,6 +112,7 @@ class MainActivity : ComponentActivity() {
                     }
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
+                    isSplashScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
                     FeedScreen(navController = navController,reviewsViewModel = reviewsViewModel)
@@ -117,27 +121,32 @@ class MainActivity : ComponentActivity() {
                     }
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
+                    isSplashScreen = false
                 }
                 composable(Screens.ReviewScreen.route) {
                     ReviewScreen(navController = navController,reviewsViewModel = reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
+                    isSplashScreen = false
                 }
                 composable(Screens.ProfileScreen.route) {
                     ProfileScreen(navController = navController, authViewModel = authViewModel,photoPickerLauncher = photoPickerLauncher)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
+                    isSplashScreen = false
                 }
                 composable(Screens.CreatePostScreen.route) {
                     CreatePost(navController, photoPickerLauncher = photoPickerLauncher,
                         videoPickerLauncher = videoPickerLauncher)
                     isCreatePostScreen = true
                     isCreateReviewScreen = false
+                    isSplashScreen = false
                 }
                 composable(Screens.CreateReviewScreen.route){
                     CreateReviewScreen(navController, reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = true
+                    isSplashScreen = false
                 }
             }
         }
