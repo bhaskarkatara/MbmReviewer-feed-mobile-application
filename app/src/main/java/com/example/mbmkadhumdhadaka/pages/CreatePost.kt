@@ -59,6 +59,7 @@ fun CreatePost(
     var postContent by rememberSaveable { mutableStateOf("") }
     var isShowMedia by rememberSaveable { mutableStateOf(false) }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -165,22 +166,23 @@ fun CreatePost(
                                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                                 )
                                 photoPickerLauncherForPost.launch(intent)
+                                isShowMedia = false
                             }
                             .padding(8.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Video",
-                        modifier = Modifier
-                            .clickable {
-                                val intent = Intent(
-                                    Intent.ACTION_PICK,
-                                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                                )
-                                videoPickerLauncher.launch(intent)
-                            }
-                            .padding(8.dp)
-                    )
+//                    Text(
+//                        text = "Video",
+//                        modifier = Modifier
+//                            .clickable {
+//                                val intent = Intent(
+//                                    Intent.ACTION_PICK,
+//                                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+//                                )
+//                                videoPickerLauncher.launch(intent)
+//                            }
+//                            .padding(8.dp)
+//                    )
                 }
             }
 
@@ -197,6 +199,7 @@ fun CreatePost(
                 )
             }
             if (selectedPhotoUriForPost != null) {
+
                 Text(
                     text = "Delete Image",
                     modifier = Modifier
@@ -216,6 +219,7 @@ fun CreatePost(
                         .border(1.dp, Color.Gray)
                         .padding(8.dp)
                 )
+
             }
         }
     }

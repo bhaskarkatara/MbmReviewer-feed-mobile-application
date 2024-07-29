@@ -1,83 +1,80 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetState
-import androidx.compose.material.BottomSheetValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
-import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
-import kotlinx.coroutines.launch
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
+import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
+import kotlinx.coroutines.launch
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
+    userDetailsViewModel: UserDetailsViewModel,
     navController: NavController,
     authViewModel: AuthViewModel,
     photoPickerLauncher: ActivityResultLauncher<Intent>,
     selectedPhotoUri: Uri?,
     setSelectedPhotoUri: (Uri?) -> Unit
 ) {
+    Log.d(TAG, "ProfileScreen: Main screen here")
     val isShowLogoutDialog = remember { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
+    var loader by remember { mutableStateOf(true) }
 
+    // State for user profile
+    var userProfile by remember { mutableStateOf<Map<String, Any>?>(null) }
+
+    // Fetch user details when the screen is loaded or when authentication state changes
     LaunchedEffect(authState) {
         if (authState is AuthState.Unauthenticated) {
             navController.navigate(Screens.LgSpScreen.route) {
                 popUpTo(Screens.ProfileScreen.route) { inclusive = true }
             }
+        } else {
+            loader = true
+            val userId = authViewModel.auth.currentUser?.uid
+            if (userId != null) {
+                userDetailsViewModel.getUserDetails(userId)
+            }
         }
+    }
+
+    // Update user profile data when userDetails changes
+    LaunchedEffect(userDetailsViewModel.userDetails) {
+        userProfile = userDetailsViewModel.userDetails.value
+        loader = false
     }
 
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
@@ -95,8 +92,8 @@ fun ProfileScreen(
                 Text(text = "Edit Profile", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                var name by remember { mutableStateOf("") }
-                var status by remember { mutableStateOf("") }
+                var name by remember { mutableStateOf(userProfile?.get("name")?.toString() ?: "") }
+                var status by remember { mutableStateOf(userProfile?.get("status")?.toString() ?: "") }
                 val maxCharName = 15
                 val maxCharStatus = 20
 
@@ -144,8 +141,21 @@ fun ProfileScreen(
                     Text(
                         text = "Save",
                         modifier = Modifier.clickable {
-                            // TODO: Save profile changes
-                            scope.launch { sheetState.collapse() }
+                            scope.launch {
+                                loader = true // Start loader when saving
+                                val userId = authViewModel.auth.currentUser?.uid
+                                if (userId != null) {
+                                    userDetailsViewModel.saveUserDetails(
+                                        userId,
+                                        name ?: "Your_name",
+                                        status ?: "Your_status",
+                                        selectedPhotoUri?.toString() ?: "",
+                                        authViewModel.auth.currentUser!!.email.toString()
+                                    )
+                                    loader = false // Stop loader after saving
+                                    sheetState.collapse()
+                                }
+                            }
                         }
                     )
                 }
@@ -169,98 +179,120 @@ fun ProfileScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Profile Picture
+        if (loader) {
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                        photoPickerLauncher.launch(intent)
-                    },
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = selectedPhotoUri?.let { rememberAsyncImagePainter(it) }
-                        ?: painterResource(id = R.drawable.ic_launcher_foreground), // Default image
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, Color.Gray, CircleShape)
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Name Row
+        } else {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp), horizontalAlignment = Alignment.Start
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = "Name:", style = MaterialTheme.typography.h6)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "your_name") // Replace with user name
+                // Profile Picture
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clickable {
+                            val intent = Intent(
+                                Intent.ACTION_PICK,
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                            )
+                            photoPickerLauncher.launch(intent)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    val imageRequest = ImageRequest.Builder(LocalContext.current)
+                        .data(selectedPhotoUri ?: userProfile?.get("photoUrl"))
+                        .placeholder(R.drawable.ic_launcher_foreground) // Optional placeholder image
+                        .error(R.drawable.ic_launcher_foreground).build() // Optional error image
+                    Image(
+                        painter = rememberAsyncImagePainter(imageRequest),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, Color.Gray, CircleShape)
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Status Row
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = "Status")
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = "Status:", style = MaterialTheme.typography.h6)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "your_status") // Replace with user status
+                // Name Row
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(text = "Name:", style = MaterialTheme.typography.h6)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = userProfile?.get("name")?.toString() ?: "Loading...")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Status Row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Info, contentDescription = "Status")
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(text = "Status:", style = MaterialTheme.typography.h6)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = userProfile?.get("status")?.toString() ?: "Loading...")
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(130.dp))
+
+                Button(onClick = {
+                    isShowLogoutDialog.value = true
+                }) {
+                    Text(text = "Log Out")
+                }
+
+                Spacer(modifier = Modifier.height(100.dp))
+
+                Text(
+                    text = "--Mugneeram Ji--",
+                    style = MaterialTheme.typography.h6,
+                    color = Color.Magenta
+                )
             }
-
-            Spacer(modifier = Modifier.height(130.dp))
-
-            Button(onClick = {
-                isShowLogoutDialog.value = true
-            }) {
-                Text(text = "Log Out")
-            }
-
-            Spacer(modifier = Modifier.height(100.dp))
-
-            Text(
-                text = "--Mugneeram Ji--",
-                style = MaterialTheme.typography.h6,
-                color = Color.Magenta
-            )
         }
     }
 
     if (isShowLogoutDialog.value) {
         AlertDialog(
             onDismissRequest = { isShowLogoutDialog.value = false },
-            title = { Text(text = "Logout?") },
-            text = { Text(text = "Are you sure you want to logout?") },
+            title = { Text(text = "Log Out") },
+            text = { Text(text = "Are you sure you want to log out?") },
             confirmButton = {
-                Button(onClick = {
-                    isShowLogoutDialog.value = false
-                    authViewModel.signOut()
-                }) {
-                    Text("Confirm")
+                Button(
+                    onClick = {
+                        isShowLogoutDialog.value = false
+                        authViewModel.signOut()
+                    }) {
+                    Text(text = "Yes")
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    isShowLogoutDialog.value = false
-                }) {
-                    Text("Cancel")
+                Button(
+                    onClick = {
+                        isShowLogoutDialog.value = false
+                    }) {
+                    Text(text = "No")
                 }
             }
         )

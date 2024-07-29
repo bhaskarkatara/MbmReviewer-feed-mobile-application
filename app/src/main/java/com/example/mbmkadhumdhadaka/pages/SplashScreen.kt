@@ -53,10 +53,10 @@ fun SplashScreen(navController: NavController, authViewModel: AuthViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+//            CircularProgressIndicator(
+//                color = MaterialTheme.colorScheme.onPrimary,
+//                modifier = Modifier.padding(bottom = 16.dp)
+//            )
             Text(
                 text = "Loading...",
                 style = TextStyle(color = MaterialTheme.colorScheme.onPrimary, fontSize = 24.sp)

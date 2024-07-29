@@ -1,9 +1,11 @@
 package com.example.mbmkadhumdhadaka
 
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -49,6 +52,7 @@ import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
+import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var photoPickerLauncher: ActivityResultLauncher<Intent>
@@ -130,6 +134,8 @@ class MainActivity : ComponentActivity() {
         var isSplashScreen by remember { mutableStateOf(true) }
 
         val authState = authViewModel.authState.observeAsState()
+        val userDetailViewModel : UserDetailsViewModel = viewModel()
+
 
 
         Scaffold(
@@ -180,6 +186,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Screens.ProfileScreen.route) {
                     ProfileScreen(
+                        userDetailViewModel,
                         navController = navController,
                         authViewModel = authViewModel,
                         photoPickerLauncher = photoPickerLauncher,
@@ -254,10 +261,17 @@ class MainActivity : ComponentActivity() {
                 label = { Text("Profile") },
                 selected = currentRoute == Screens.ProfileScreen.route,
                 onClick = {
-                    navController.navigate(Screens.ProfileScreen.route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    try{
+                        navController.navigate(Screens.ProfileScreen.route) {
+                            Log.d(TAG, "BottomNavigationBar: Comes here for profile screen")
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
+                    catch (e: Exception){
+                        Log.d(TAG, "BottomNavigationBar: ${e.message}")
+                    }
+
                 }
             )
         }
