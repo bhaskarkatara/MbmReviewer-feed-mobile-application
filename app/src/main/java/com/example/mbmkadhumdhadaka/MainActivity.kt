@@ -142,7 +142,7 @@ class MainActivity : ComponentActivity() {
             bottomBar = {
                 if (authState.value is AuthState.Authenticated && !isCreatePostScreen &&
                     (authState.value is AuthState.Authenticated && !isCreateReviewScreen) && !isSplashScreen ) {
-                    BottomNavigationBar(navController)
+                    BottomNavigationBar(navController,userDetailViewModel,authViewModel)
                 }
             }
         ) { innerPadding ->
@@ -225,7 +225,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun BottomNavigationBar(navController: NavController) {
+    fun BottomNavigationBar(navController: NavController,userDetailsViewModel: UserDetailsViewModel,authViewModel: AuthViewModel) {
         BottomNavigation(
             modifier = Modifier.navigationBarsPadding(), // Ensure padding for the bottom navigation
             backgroundColor = Color(0xFFFFC0CB),
@@ -262,8 +262,9 @@ class MainActivity : ComponentActivity() {
                 selected = currentRoute == Screens.ProfileScreen.route,
                 onClick = {
                     try{
+                        userDetailsViewModel.getUserDetails(authViewModel.auth.currentUser!!.uid)
                         navController.navigate(Screens.ProfileScreen.route) {
-                            Log.d(TAG, "BottomNavigationBar: Comes here for profile screen")
+
                             launchSingleTop = true
                             restoreState = true
                         }

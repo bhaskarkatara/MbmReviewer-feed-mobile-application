@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.mbmkadhumdhadaka.R
@@ -48,13 +51,23 @@ fun ProfileScreen(
     selectedPhotoUri: Uri?,
     setSelectedPhotoUri: (Uri?) -> Unit
 ) {
-    Log.d(TAG, "ProfileScreen: Main screen here")
     val isShowLogoutDialog = remember { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
     var loader by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     // State for user profile
     var userProfile by remember { mutableStateOf<Map<String, Any>?>(null) }
+    fun fetchUserDetails() {
+        loader = true
+        val userId = authViewModel.auth.currentUser?.uid
+        if (userId != null) {
+            userDetailsViewModel.getUserDetails(userId)
+        }
+        else {
+            loader = false // Stop the loader if userId is null
+        }
+    }
 
     // Fetch user details when the screen is loaded or when authentication state changes
     LaunchedEffect(authState) {
@@ -63,20 +76,18 @@ fun ProfileScreen(
                 popUpTo(Screens.ProfileScreen.route) { inclusive = true }
             }
         } else {
-            loader = true
-            val userId = authViewModel.auth.currentUser?.uid
-            if (userId != null) {
-                userDetailsViewModel.getUserDetails(userId)
-            }
+            fetchUserDetails()
+            loader = false
         }
     }
-
     // Update user profile data when userDetails changes
     LaunchedEffect(userDetailsViewModel.userDetails) {
-        userProfile = userDetailsViewModel.userDetails.value
-        loader = false
+        userDetailsViewModel.userDetails.value?.let { details ->
+            userProfile = details
+            loader = false
+        }
     }
-
+    Log.d(TAG, "ProfileScreen: $userProfile")
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
@@ -144,16 +155,20 @@ fun ProfileScreen(
                             scope.launch {
                                 loader = true // Start loader when saving
                                 val userId = authViewModel.auth.currentUser?.uid
-                                if (userId != null) {
+                                if (userId != null && name.isNotEmpty() && status.isNotEmpty()) {
                                     userDetailsViewModel.saveUserDetails(
                                         userId,
-                                        name ?: "Your_name",
-                                        status ?: "Your_status",
+                                        name,
+                                        status,
                                         selectedPhotoUri?.toString() ?: "",
                                         authViewModel.auth.currentUser!!.email.toString()
                                     )
+                                    fetchUserDetails() // Trigger a reload after saving // Trigger a reload after saving
                                     loader = false // Stop loader after saving
                                     sheetState.collapse()
+                                } else {
+                                    loader = false
+                                    Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -174,6 +189,9 @@ fun ProfileScreen(
                         }
                     }) {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                    IconButton(onClick = { fetchUserDetails() }) {
+                        Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
             )
@@ -211,18 +229,31 @@ fun ProfileScreen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
+                    val imageUrl = selectedPhotoUri ?: userProfile?.get("photoUrl")
+                    Log.d(TAG, "Image URL: $imageUrl")
+
                     val imageRequest = ImageRequest.Builder(LocalContext.current)
-                        .data(selectedPhotoUri ?: userProfile?.get("photoUrl"))
+                        .data(imageUrl)
+                        .listener(
+                            onStart = { Log.d(TAG, "Image loading started") },
+                            onSuccess = { _, _ -> Log.d(TAG, "Image loading successful") },
+                            onError = { request, throwable ->
+                                Log.e(TAG, "Image loading failed: ${request.data}")
+                            }
+                        )
                         .placeholder(R.drawable.ic_launcher_foreground) // Optional placeholder image
-                        .error(R.drawable.ic_launcher_foreground).build() // Optional error image
-                    Image(
-                        painter = rememberAsyncImagePainter(imageRequest),
+                        .error(R.drawable.ic_launcher_foreground) // Optional error image
+                        .build()
+
+                    AsyncImage(
+                        model = imageRequest,
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(100.dp)
                             .clip(CircleShape)
                             .border(1.dp, Color.Gray, CircleShape)
                     )
+
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -234,6 +265,7 @@ fun ProfileScreen(
                         .padding(start = 20.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
                         Spacer(modifier = Modifier.width(20.dp))
@@ -254,47 +286,37 @@ fun ProfileScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(130.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                Button(onClick = {
-                    isShowLogoutDialog.value = true
-                }) {
-                    Text(text = "Log Out")
+                Button(
+                    onClick = { isShowLogoutDialog.value = true },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+                ) {
+                    Text(text = "Logout", color = Color.White)
                 }
 
-                Spacer(modifier = Modifier.height(100.dp))
-
-                Text(
-                    text = "--Mugneeram Ji--",
-                    style = MaterialTheme.typography.h6,
-                    color = Color.Magenta
-                )
+                // Logout confirmation dialog
+                if (isShowLogoutDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { isShowLogoutDialog.value = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                authViewModel.signOut()
+                                isShowLogoutDialog.value = false
+                            }) {
+                                Text(text = "Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { isShowLogoutDialog.value = false }) {
+                                Text(text = "Dismiss")
+                            }
+                        },
+                        title = { Text(text = "Logout") },
+                        text = { Text(text = "Are you sure you want to logout?") }
+                    )
+                }
             }
         }
-    }
-
-    if (isShowLogoutDialog.value) {
-        AlertDialog(
-            onDismissRequest = { isShowLogoutDialog.value = false },
-            title = { Text(text = "Log Out") },
-            text = { Text(text = "Are you sure you want to log out?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        isShowLogoutDialog.value = false
-                        authViewModel.signOut()
-                    }) {
-                    Text(text = "Yes")
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        isShowLogoutDialog.value = false
-                    }) {
-                    Text(text = "No")
-                }
-            }
-        )
     }
 }
