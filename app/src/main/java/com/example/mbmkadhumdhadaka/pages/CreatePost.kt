@@ -40,6 +40,9 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.mbmkadhumdhadaka.R
+import com.example.mbmkadhumdhadaka.dataModel.PostModel
+import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
+import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +57,10 @@ fun CreatePost(
     setSelectedVideoUri: (Uri?) -> Unit,
     photoPickerLauncherForPost: ActivityResultLauncher<Intent>,
     selectedPhotoUriForPost: Uri?,
-    setSelectedPhotoUriForPost: (Uri?) -> Unit
+    setSelectedPhotoUriForPost: (Uri?) -> Unit,
+    userDetailsViewModel: UserDetailsViewModel,
+    postViewModel: PostViewModel
+
 ) {
     var postContent by rememberSaveable { mutableStateOf("") }
     var isShowMedia by rememberSaveable { mutableStateOf(false) }
@@ -67,7 +73,7 @@ fun CreatePost(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -75,7 +81,8 @@ fun CreatePost(
                 actions = {
                     OutlinedButton(
                         onClick = {
-                            // TODO: Handle post action
+                           postViewModel.createPost(PostModel(postContent = postContent))
+                            navController.navigateUp()
                         },
                         colors = ButtonDefaults.outlinedButtonColors(
                             containerColor = if (postContent.isNotEmpty()) Color.Red else Color.Transparent
@@ -113,7 +120,7 @@ fun CreatePost(
                         .border(1.dp, Color.Gray, CircleShape)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text("Your Name", style = MaterialTheme.typography.h6)
+                Text(userDetailsViewModel.userDetails.value?.get("name").toString(), style = MaterialTheme.typography.h6)
             }
 
             Spacer(modifier = Modifier.height(20.dp))

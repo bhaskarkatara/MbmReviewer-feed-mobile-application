@@ -1,5 +1,7 @@
 package com.example.mbmkadhumdhadaka.pages
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,58 +22,74 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.mbmkadhumdhadaka.dataModel.DummyData
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
-import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
+import com.example.mbmkadhumdhadaka.viewModel.PostResult
+import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 
 @Composable
-fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel) {
+fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-//        background(Color(0xFFF5F5F5))
-    ) {
+    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row {
                 Text(
                     text = "MbmKaDhumDhadaka...",
                     style = TextStyle(
                         fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier.padding(16.dp)
                 )
                 Spacer(modifier = Modifier.width(20.dp))
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {
+                    try {
+                        postViewModel.loadPosts()
+                    } catch (e:Exception){
+                        Log.e(TAG, "FeedScreen: $e" )
+                    }
+                }) {
                     Icon(imageVector = Icons.Default.Refresh, contentDescription = "refresh")
                 }
             }
 
-            LazyColumn(modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp)) {
-                items(DummyData.posts) { item ->
-                    PostCard(item)
+            when (postsData) {
+                is PostResult.Loading -> {
+                    // Display loading indicator
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                is PostResult.Success -> {
+                    LazyColumn(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)) {
+                        items(
+                            (postsData as PostResult.Success<List<PostModel<Any?>>>).data
+                                ?: emptyList()) { item ->
+                            PostCard(item)
+                        }
+                    }
+                }
+                is PostResult.Error -> {
+                    // Display error message
+                    Text(text = (postsData as PostResult.Error).exception, color = Color.Red)
                 }
             }
         }
@@ -94,7 +112,7 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
                     Button(
                         onClick = {
                             if (feedbackText.isNotEmpty()) {
-                                reviewsViewModel.createFeedback(feedbackText)
+                                // Replace with actual feedback function
                                 Toast.makeText(context, "Thank You :)", Toast.LENGTH_SHORT).show()
                                 feedbackText = "" // Clear the feedback text after submission
                                 isClickToFeedback = false
@@ -148,7 +166,7 @@ fun FeedScreen(navController: NavController, reviewsViewModel: ReviewsViewModel)
 }
 
 @Composable
-fun PostCard(item: PostModel) {
+fun PostCard(item: PostModel<Any?>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -166,7 +184,7 @@ fun PostCard(item: PostModel) {
                         .padding(end = 8.dp)
                 )
                 Text(
-                    text = "Owner Name",
+                    text = item.postOwnerName,
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.width(120.dp))
@@ -187,12 +205,11 @@ fun PostCard(item: PostModel) {
             )
         }
         Spacer(modifier = Modifier.height(3.dp))
-        Row{
-           IconButton(onClick = { /*TODO*/ }) {
-               Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
-           }
+        Row {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
+            }
             Spacer(modifier = Modifier.width(10.dp))
-//            Text(text = "Comment", modifier = Modifier.clickable { })
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
             }

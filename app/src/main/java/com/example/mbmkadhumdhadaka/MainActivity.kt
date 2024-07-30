@@ -51,6 +51,7 @@ import com.example.mbmkadhumdhadaka.pages.SplashScreen
 import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
@@ -135,7 +136,7 @@ class MainActivity : ComponentActivity() {
 
         val authState = authViewModel.authState.observeAsState()
         val userDetailViewModel : UserDetailsViewModel = viewModel()
-
+         val postViewModel : PostViewModel = viewModel()
 
 
         Scaffold(
@@ -170,7 +171,7 @@ class MainActivity : ComponentActivity() {
                     isSplashScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
-                    FeedScreen(navController = navController,reviewsViewModel = reviewsViewModel)
+                    FeedScreen(navController = navController,postViewModel = postViewModel)
                     BackHandler {
                         (context as? Activity)?.finish()
                     }
@@ -208,7 +209,9 @@ class MainActivity : ComponentActivity() {
                         setSelectedVideoUri = setSelectedVideoUri,
                         photoPickerLauncherForPost = photoPickerLauncherForPost,
                         selectedPhotoUriForPost = selectedPhotoUriForPost,
-                        setSelectedPhotoUriForPost = setSelectedPhotoUriForPost
+                        setSelectedPhotoUriForPost = setSelectedPhotoUriForPost,
+                        userDetailViewModel,
+                        postViewModel = postViewModel
                         )
                     isCreatePostScreen = true
                     isCreateReviewScreen = false
