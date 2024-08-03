@@ -38,7 +38,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
-
 @Composable
 fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
@@ -63,8 +62,9 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                 IconButton(onClick = {
                     try {
                         postViewModel.loadPosts()
-                    } catch (e:Exception){
-                        Log.e(TAG, "FeedScreen: $e" )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "FeedScreen: $e")
+                        Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
                     }
                 }) {
                     Icon(imageVector = Icons.Default.Refresh, contentDescription = "refresh")
@@ -76,16 +76,18 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                     // Display loading indicator
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
-                is PostResult.Success -> {
-                    LazyColumn(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp)) {
-                        items(
-                            (postsData as PostResult.Success<List<PostModel<Any?>>>).data
-                                ?: emptyList()) { item ->
+                is PostResult.Success<*> -> {
+                    val postList = (postsData as PostResult.Success<List<PostModel<Any?>>>).data ?: emptyList()
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp)
+                    ) {
+                        items(postList) { item ->
                             PostCard(item)
                         }
                     }
+                    Log.d(TAG, "Loaded data: ${postList.size} posts")
                 }
                 is PostResult.Error -> {
                     // Display error message
