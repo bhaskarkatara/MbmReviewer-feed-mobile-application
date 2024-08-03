@@ -20,6 +20,8 @@ class PostViewModel : ViewModel() {
         loadPosts()
     }
 
+
+
     fun createPost(post: PostModel<Any?>) {
         viewModelScope.launch {
             try {
