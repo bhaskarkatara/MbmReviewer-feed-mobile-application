@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -38,6 +39,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 @Composable
 fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
@@ -83,6 +88,15 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                             .fillMaxSize()
                             .padding(10.dp)
                     ) {
+                        if(postList.isEmpty()){
+                           item { 
+                               Text(
+                                   text = "No post Available",
+                                   modifier = Modifier.fillMaxWidth(),
+                                   style = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Center)
+                               )
+                           }
+                        }
                         items(postList) { item ->
                             PostCard(item)
                         }
@@ -203,7 +217,7 @@ fun PostCard(item: PostModel<Any?>) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .border(1.dp, Color.Gray, RectangleShape)
+                    .border(0.dp, Color.Gray, RectangleShape)
             )
         }
         Spacer(modifier = Modifier.height(3.dp))
@@ -216,7 +230,12 @@ fun PostCard(item: PostModel<Any?>) {
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
             }
             Spacer(modifier = Modifier.width(80.dp))
-            Text("30 minutes ago")
+            Text(text = formatTimeStamp(item.timestamp))
         }
     }
+}
+fun formatTimeStamp(timestamp: Long): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = Date(timestamp)
+    return sdf.format(date)
 }
