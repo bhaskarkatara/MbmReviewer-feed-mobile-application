@@ -39,6 +39,7 @@ class PostViewModel : ViewModel() {
             try {
                 val posts = postRepository.loadPosts()
                 _postsData.value = PostResult.Success(posts)
+                Log.d(TAG, "loadPosts: ${_postsData.value}")
             } catch (e: Exception) {
                 _postsData.value = PostResult.Error("Failed to load data: ${e.message}")
             }

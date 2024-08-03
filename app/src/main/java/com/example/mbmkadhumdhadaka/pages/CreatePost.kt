@@ -81,7 +81,9 @@ fun CreatePost(
                 actions = {
                     OutlinedButton(
                         onClick = {
-                           postViewModel.createPost(PostModel(postContent = postContent))
+                           postViewModel.createPost(PostModel("" , postContent, selectedPhotoUriForPost.toString(),
+                               selectedPhotoUri.toString(), userDetailsViewModel.userDetails.value?.get("name").toString(),
+                               userDetailsViewModel.userDetails.value?.get("uid").toString(), System.currentTimeMillis()))
                             navController.navigateUp()
                         },
                         colors = ButtonDefaults.outlinedButtonColors(

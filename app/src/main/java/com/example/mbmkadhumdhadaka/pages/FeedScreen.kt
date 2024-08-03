@@ -51,7 +51,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row {
                 Text(
-                    text = "MbmKaDhumDhadaka...",
+                    text = "MbmKaDhoomDhadaka...",
                     style = TextStyle(
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
