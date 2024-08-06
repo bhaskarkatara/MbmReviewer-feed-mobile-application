@@ -1,11 +1,13 @@
-package com.example.mbmkadhumdhadaka.pages
-
+import android.Manifest
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,10 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
@@ -47,27 +50,55 @@ fun ProfileScreen(
     userDetailsViewModel: UserDetailsViewModel,
     navController: NavController,
     authViewModel: AuthViewModel,
-    photoPickerLauncher: ActivityResultLauncher<Intent>,
+    photoPickerLauncher: ActivityResultLauncher<String>,
     selectedPhotoUri: Uri?,
     setSelectedPhotoUri: (Uri?) -> Unit
 ) {
     val isShowLogoutDialog = remember { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
-    var loader by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
     // State for user profile
     var userProfile by remember { mutableStateOf<Map<String, Any>?>(null) }
+
+//    Log.d(TAG, "ProfileScreen: first step")
+    // Permission handling
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (!isGranted) {
+            Log.d(TAG, "Permission denied.")
+            Toast.makeText(context, "Permission not granted", Toast.LENGTH_SHORT).show()
+        }
+        else{
+            Log.d(TAG, "Permission granted.")
+        }
+    }
+    LaunchedEffect(Unit) {
+        try {
+            Log.d(TAG, "Checking permission...")
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "Requesting permission...")
+                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Permission request error: ${e.message}")
+        }
+    }
+
+
+
     fun fetchUserDetails() {
-        loader = true
         val userId = authViewModel.auth.currentUser?.uid
         if (userId != null) {
             userDetailsViewModel.getUserDetails(userId)
         }
-        else {
-            loader = false // Stop the loader if userId is null
-        }
     }
+
 
     // Fetch user details when the screen is loaded or when authentication state changes
     LaunchedEffect(authState) {
@@ -77,17 +108,16 @@ fun ProfileScreen(
             }
         } else {
             fetchUserDetails()
-            loader = false
         }
     }
+
     // Update user profile data when userDetails changes
     LaunchedEffect(userDetailsViewModel.userDetails) {
         userDetailsViewModel.userDetails.value?.let { details ->
             userProfile = details
-            loader = false
         }
     }
-    Log.d(TAG, "ProfileScreen: $userProfile")
+
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
@@ -153,7 +183,6 @@ fun ProfileScreen(
                         text = "Save",
                         modifier = Modifier.clickable {
                             scope.launch {
-                                loader = true // Start loader when saving
                                 val userId = authViewModel.auth.currentUser?.uid
                                 if (userId != null && name.isNotEmpty() && status.isNotEmpty()) {
                                     userDetailsViewModel.saveUserDetails(
@@ -163,11 +192,9 @@ fun ProfileScreen(
                                         selectedPhotoUri?.toString() ?: "",
                                         authViewModel.auth.currentUser!!.email.toString()
                                     )
-                                    fetchUserDetails() // Trigger a reload after saving // Trigger a reload after saving
-                                    loader = false // Stop loader after saving
+                                    fetchUserDetails() // Trigger a reload after saving
                                     sheetState.collapse()
                                 } else {
-                                    loader = false
                                     Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT).show()
                                 }
                             }
@@ -197,52 +224,48 @@ fun ProfileScreen(
             )
         }
     ) { innerPadding ->
-        if (loader) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Profile Picture
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                    .size(100.dp)
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "image/*"
+                        }
+                        photoPickerLauncher.launch("image/*")
+
+
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Profile Picture
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clickable {
-                            val intent = Intent(
-                                Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                            )
-                            photoPickerLauncher.launch(intent)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    val imageUrl = selectedPhotoUri ?: userProfile?.get("photoUrl")
-                    Log.d(TAG, "Image URL: $imageUrl")
+                val imageUrl = selectedPhotoUri ?: userProfile?.get("photoUrl")
+                Log.d(TAG, "Image URL: $imageUrl")
 
+                if (imageUrl != null) {
                     val imageRequest = ImageRequest.Builder(LocalContext.current)
                         .data(imageUrl)
                         .listener(
-                            onStart = { Log.d(TAG, "Image loading started") },
-                            onSuccess = { _, _ -> Log.d(TAG, "Image loading successful") },
+                            onStart = {
+                                Log.d(TAG, "Image loading started")
+                            },
+                            onSuccess = { request, metadata ->
+                                Log.d(TAG, "Image loading successful")
+                            },
                             onError = { request, throwable ->
-                                Log.e(TAG, "Image loading failed: ${request.data}")
+                                Log.e(TAG, "Image loading failed: ${throwable.throwable.message ?: "Unknown error"}")
                             }
                         )
                         .placeholder(R.drawable.ic_launcher_foreground) // Optional placeholder image
                         .error(R.drawable.ic_launcher_foreground) // Optional error image
+                        .transformations(CircleCropTransformation())
                         .build()
 
                     AsyncImage(
@@ -253,70 +276,96 @@ fun ProfileScreen(
                             .clip(CircleShape)
                             .border(1.dp, Color.Gray, CircleShape)
                     )
-
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Name Row
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
-                        Spacer(modifier = Modifier.width(20.dp))
-                        Text(text = "Name:", style = MaterialTheme.typography.h6)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = userProfile?.get("name")?.toString() ?: "Loading...")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Status Row
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.Info, contentDescription = "Status")
-                        Spacer(modifier = Modifier.width(20.dp))
-                        Text(text = "Status:", style = MaterialTheme.typography.h6)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = userProfile?.get("status")?.toString() ?: "Loading...")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = { isShowLogoutDialog.value = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
-                ) {
-                    Text(text = "Logout", color = Color.White)
-                }
-
-                // Logout confirmation dialog
-                if (isShowLogoutDialog.value) {
-                    AlertDialog(
-                        onDismissRequest = { isShowLogoutDialog.value = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                authViewModel.signOut()
-                                isShowLogoutDialog.value = false
-                            }) {
-                                Text(text = "Confirm")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { isShowLogoutDialog.value = false }) {
-                                Text(text = "Dismiss")
-                            }
-                        },
-                        title = { Text(text = "Logout") },
-                        text = { Text(text = "Are you sure you want to logout?") }
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        contentDescription = "Default Profile Picture",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, Color.Gray, CircleShape)
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Name Row
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "Name")
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(text = "Name:", style = MaterialTheme.typography.h6)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = userProfile?.get("name")?.toString() ?: "Loading...", style = MaterialTheme.typography.h6)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Status Row
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Info, contentDescription = "Status")
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(text = "Status:", style = MaterialTheme.typography.h6)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = userProfile?.get("status")?.toString() ?: "Loading...", style = MaterialTheme.typography.h6)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = { isShowLogoutDialog.value = true },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "Logout")
+            }
+
+            if (isShowLogoutDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { isShowLogoutDialog.value = false },
+                    title = { Text(text = "Logout") },
+                    text = { Text(text = "Are you sure you want to logout?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            authViewModel.signOut()
+                            isShowLogoutDialog.value = false
+                        }) {
+                            Text(text = "Yes")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { isShowLogoutDialog.value = false }) {
+                            Text(text = "No")
+                        }
+                    }
+                )
+            }
         }
     }
+
+    // Request permission if not already granted
+//    if (ContextCompat.checkSelfPermission(
+//            context,
+//            Manifest.permission.READ_EXTERNAL_STORAGE
+//        ) != PackageManager.PERMISSION_GRANTED
+//    ) {
+//
+//            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+//
+//
+//    }
 }

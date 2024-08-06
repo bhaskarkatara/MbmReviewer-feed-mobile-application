@@ -1,5 +1,6 @@
 package com.example.mbmkadhumdhadaka
 
+import ProfileScreen
 import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Intent
@@ -45,7 +46,7 @@ import com.example.mbmkadhumdhadaka.pages.CreatePost
 import com.example.mbmkadhumdhadaka.pages.CreateReviewScreen
 import com.example.mbmkadhumdhadaka.pages.FeedScreen
 import com.example.mbmkadhumdhadaka.pages.LgSpScreen
-import com.example.mbmkadhumdhadaka.pages.ProfileScreen
+//import com.example.mbmkadhumdhadaka.pages.ProfileScreen
 import com.example.mbmkadhumdhadaka.pages.ReviewScreen
 import com.example.mbmkadhumdhadaka.pages.SplashScreen
 import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
@@ -56,78 +57,76 @@ import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 class MainActivity : ComponentActivity() {
-    private lateinit var photoPickerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var videoPickerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var photoPickerLauncherForPost: ActivityResultLauncher<Intent>
-
-    private var selectedPhotoUriForProfile by mutableStateOf<Uri?>(null)
-    private var selectedVideoUriForPost by mutableStateOf<Uri?>(null)
-    private var selectedPhotoUriForPost by mutableStateOf<Uri?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        photoPickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedImageUri = result.data?.data
-                selectedPhotoUriForProfile = selectedImageUri
-            }
-        }
-        photoPickerLauncherForPost = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedImageUri = result.data?.data
-                selectedPhotoUriForPost = selectedImageUri
-            }
-        }
-
-
-        videoPickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedVideoUri = result.data?.data
-                this@MainActivity.selectedVideoUriForPost = selectedVideoUri
-            }
-        }
-
         setContent {
             val authViewModel: AuthViewModel = viewModel()
-            val reviewViewModel : ReviewsViewModel = viewModel()
+            val reviewViewModel: ReviewsViewModel = viewModel()
 
             MbmKaDhumDhadakaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(
-                         authViewModel=  authViewModel,
-                         reviewViewModel ,
-                        photoPickerLauncher = photoPickerLauncher,
-                        videoPickerLauncher = videoPickerLauncher,
-                        selectedPhotoUriForProfile = selectedPhotoUriForProfile,
-                        setselectedPhotoUriForProfile = { selectedPhotoUriForProfile = it },
-                        selectedVideoUri = selectedVideoUriForPost,
-                        setSelectedVideoUri = { selectedVideoUriForPost = it },
-                        photoPickerLauncherForPost = photoPickerLauncherForPost,
-                        selectedPhotoUriForPost = selectedPhotoUriForPost,
-                        setSelectedPhotoUriForPost = { selectedPhotoUriForPost = it }
-
-                    )
-                }
+                MainContent(authViewModel, reviewViewModel)
             }
         }
     }
 
+    @Composable
+    fun MainContent(authViewModel: AuthViewModel, reviewsViewModel: ReviewsViewModel) {
+        var selectedPhotoUriForProfile by remember { mutableStateOf<Uri?>(null) }
+        var selectedPhotoUriForPost by remember { mutableStateOf<Uri?>(null) }
+        var selectedVideoUriForPost by remember { mutableStateOf<Uri?>(null) }
+
+        val photoPickerLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let { selectedPhotoUriForProfile = it }
+        }
+
+        val photoPickerLauncherForPost = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let { selectedPhotoUriForPost = it }
+        }
+
+        val videoPickerLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let { selectedVideoUriForPost = it }
+        }
+
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Navigation(
+                authViewModel = authViewModel,
+                reviewsViewModel = reviewsViewModel,
+                photoPickerLauncher = photoPickerLauncher,
+                videoPickerLauncher = videoPickerLauncher,
+                selectedPhotoUriForProfile = selectedPhotoUriForProfile,
+                setSelectedPhotoUriForProfile = { selectedPhotoUriForProfile = it },
+                selectedVideoUri = selectedVideoUriForPost,
+                setSelectedVideoUri = { selectedVideoUriForPost = it },
+                photoPickerLauncherForPost = photoPickerLauncherForPost,
+                selectedPhotoUriForPost = selectedPhotoUriForPost,
+                setSelectedPhotoUriForPost = { selectedPhotoUriForPost = it }
+            )
+        }
+    }
 
     @Composable
-    fun Navigation(authViewModel: AuthViewModel,reviewsViewModel: ReviewsViewModel,
-                   photoPickerLauncher: ActivityResultLauncher<Intent>,
-                   videoPickerLauncher: ActivityResultLauncher<Intent>,
-                   selectedPhotoUriForProfile: Uri?,
-                   setselectedPhotoUriForProfile: (Uri?) -> Unit,
-                   selectedVideoUri: Uri?,
-                   setSelectedVideoUri: (Uri?) -> Unit,
-                   photoPickerLauncherForPost: ActivityResultLauncher<Intent>,
-                   selectedPhotoUriForPost: Uri?,
-                   setSelectedPhotoUriForPost: (Uri?) -> Unit
-    )
-    {
+    fun Navigation(
+        authViewModel: AuthViewModel,
+        reviewsViewModel: ReviewsViewModel,
+        photoPickerLauncher: ActivityResultLauncher<String>,
+        videoPickerLauncher: ActivityResultLauncher<String>,
+        selectedPhotoUriForProfile: Uri?,
+        setSelectedPhotoUriForProfile: (Uri?) -> Unit,
+        selectedVideoUri: Uri?,
+        setSelectedVideoUri: (Uri?) -> Unit,
+        photoPickerLauncherForPost: ActivityResultLauncher<String>,
+        selectedPhotoUriForPost: Uri?,
+        setSelectedPhotoUriForPost: (Uri?) -> Unit
+    ) {
         val navController = rememberNavController()
         val context = LocalContext.current
         var isCreatePostScreen by remember { mutableStateOf(false) }
@@ -135,15 +134,14 @@ class MainActivity : ComponentActivity() {
         var isSplashScreen by remember { mutableStateOf(true) }
 
         val authState = authViewModel.authState.observeAsState()
-        val userDetailViewModel : UserDetailsViewModel = viewModel()
-         val postViewModel : PostViewModel = viewModel()
-
+        val userDetailViewModel: UserDetailsViewModel = viewModel()
+        val postViewModel: PostViewModel = viewModel()
 
         Scaffold(
             bottomBar = {
                 if (authState.value is AuthState.Authenticated && !isCreatePostScreen &&
-                    (authState.value is AuthState.Authenticated && !isCreateReviewScreen) && !isSplashScreen ) {
-                    BottomNavigationBar(navController,userDetailViewModel,authViewModel)
+                    (authState.value is AuthState.Authenticated && !isCreateReviewScreen) && !isSplashScreen) {
+                    BottomNavigationBar(navController, userDetailViewModel, authViewModel)
                 }
             }
         ) { innerPadding ->
@@ -171,7 +169,7 @@ class MainActivity : ComponentActivity() {
                     isSplashScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
-                    FeedScreen(navController = navController,postViewModel = postViewModel)
+                    FeedScreen(navController = navController, postViewModel = postViewModel)
                     BackHandler {
                         (context as? Activity)?.finish()
                     }
@@ -180,7 +178,7 @@ class MainActivity : ComponentActivity() {
                     isSplashScreen = false
                 }
                 composable(Screens.ReviewScreen.route) {
-                    ReviewScreen(navController = navController,reviewsViewModel = reviewsViewModel)
+                    ReviewScreen(navController = navController, reviewsViewModel = reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
                     isSplashScreen = false
@@ -192,19 +190,19 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         photoPickerLauncher = photoPickerLauncher,
                         selectedPhotoUri = selectedPhotoUriForProfile,
-                        setSelectedPhotoUri = setselectedPhotoUriForProfile
-                        )
-
+                        setSelectedPhotoUri = setSelectedPhotoUriForProfile
+                    )
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
                     isSplashScreen = false
                 }
                 composable(Screens.CreatePostScreen.route) {
-                    CreatePost( navController = navController,
+                    CreatePost(
+                        navController = navController,
                         photoPickerLauncher = photoPickerLauncher,
                         videoPickerLauncher = videoPickerLauncher,
                         selectedPhotoUri = selectedPhotoUriForProfile,
-                        setSelectedPhotoUri = setselectedPhotoUriForProfile,
+                        setSelectedPhotoUri = setSelectedPhotoUriForProfile,
                         selectedVideoUri = selectedVideoUri,
                         setSelectedVideoUri = setSelectedVideoUri,
                         photoPickerLauncherForPost = photoPickerLauncherForPost,
@@ -212,12 +210,12 @@ class MainActivity : ComponentActivity() {
                         setSelectedPhotoUriForPost = setSelectedPhotoUriForPost,
                         userDetailViewModel,
                         postViewModel = postViewModel
-                        )
+                    )
                     isCreatePostScreen = true
                     isCreateReviewScreen = false
                     isSplashScreen = false
                 }
-                composable(Screens.CreateReviewScreen.route){
+                composable(Screens.CreateReviewScreen.route) {
                     CreateReviewScreen(navController, reviewsViewModel)
                     isCreatePostScreen = false
                     isCreateReviewScreen = true
@@ -226,6 +224,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 
     @Composable
     fun BottomNavigationBar(navController: NavController,userDetailsViewModel: UserDetailsViewModel,authViewModel: AuthViewModel) {
@@ -280,4 +279,4 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-}
+

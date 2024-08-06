@@ -49,13 +49,13 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 //@Composable
 fun CreatePost(
     navController: NavController,
-    photoPickerLauncher: ActivityResultLauncher<Intent>,
-    videoPickerLauncher: ActivityResultLauncher<Intent>,
+    photoPickerLauncher: ActivityResultLauncher<String>,
+    videoPickerLauncher: ActivityResultLauncher<String>,
     selectedPhotoUri: Uri?,
     setSelectedPhotoUri: (Uri?) -> Unit,
     selectedVideoUri: Uri?,
     setSelectedVideoUri: (Uri?) -> Unit,
-    photoPickerLauncherForPost: ActivityResultLauncher<Intent>,
+    photoPickerLauncherForPost: ActivityResultLauncher<String>,
     selectedPhotoUriForPost: Uri?,
     setSelectedPhotoUriForPost: (Uri?) -> Unit,
     userDetailsViewModel: UserDetailsViewModel,
@@ -174,7 +174,7 @@ fun CreatePost(
                                     Intent.ACTION_PICK,
                                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                                 )
-                                photoPickerLauncherForPost.launch(intent)
+                                photoPickerLauncherForPost.launch("image/*")
                                 isShowMedia = false
                             }
                             .padding(8.dp)

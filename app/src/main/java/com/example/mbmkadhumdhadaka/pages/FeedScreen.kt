@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
+import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import java.text.SimpleDateFormat
@@ -88,20 +89,24 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                             .fillMaxSize()
                             .padding(10.dp)
                     ) {
-                        if(postList.isEmpty()){
-                           item { 
-                               Text(
-                                   text = "No post Available",
-                                   modifier = Modifier.fillMaxWidth(),
-                                   style = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Center)
-                               )
-                           }
-                        }
-                        items(postList) { item ->
-                            PostCard(item)
+                        if (postList.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "No post Available",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    style = TextStyle(
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                )
+                            }
+                        } else {
+                            items(postList) { item ->
+                                PostCard(item, authViewModel = AuthViewModel())
+                            }
                         }
                     }
-                    Log.d(TAG, "Loaded data: ${postList.size} posts")
+//                    Log.d(TAG, "Loaded data: ${postList.size} posts")
                 }
                 is PostResult.Error -> {
                     // Display error message
@@ -182,7 +187,10 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
 }
 
 @Composable
-fun PostCard(item: PostModel<Any?>) {
+fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
+    val authState by authViewModel.authState.observeAsState()
+    var expanded by remember { mutableStateOf(false) }
+    val userId = authViewModel.auth.currentUser?.uid
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,8 +211,26 @@ fun PostCard(item: PostModel<Any?>) {
                     text = item.postOwnerName,
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 )
-                Spacer(modifier = Modifier.width(120.dp))
-                IconButton(onClick = { /*TODO :open menu bar*/ }) {
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = {
+                    if (userId != null) {
+
+//                        IconButton(onClick = { expanded = !expanded }) {
+//                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Options")
+//                        }
+//                        DropdownMenu(
+//                            expanded = expanded,
+//                            onDismissRequest = { expanded = false }
+//                        ) {
+//                            DropdownMenuItem(onClick = { /* Handle edit action */ }) {
+//                                Text("Edit")
+//                            }
+//                            DropdownMenuItem(onClick = { /* Handle delete action */ }) {
+//                                Text("Delete")
+//                            }
+//                        }
+                    }
+                }) {
                     Icon(imageVector = Icons.Default.MoreVert, contentDescription = "dots")
                 }
             }
