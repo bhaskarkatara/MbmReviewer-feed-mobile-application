@@ -61,34 +61,34 @@ fun ProfileScreen(
     // State for user profile
     var userProfile by remember { mutableStateOf<Map<String, Any>?>(null) }
 
-//    Log.d(TAG, "ProfileScreen: first step")
-    // Permission handling
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (!isGranted) {
-            Log.d(TAG, "Permission denied.")
-            Toast.makeText(context, "Permission not granted", Toast.LENGTH_SHORT).show()
-        }
-        else{
-            Log.d(TAG, "Permission granted.")
-        }
-    }
-    LaunchedEffect(Unit) {
-        try {
-            Log.d(TAG, "Checking permission...")
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.d(TAG, "Requesting permission...")
-                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Permission request error: ${e.message}")
-        }
-    }
+////    Log.d(TAG, "ProfileScreen: first step")
+//    // Permission handling
+//    val permissionLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestPermission()
+//    ) { isGranted: Boolean ->
+//        if (!isGranted) {
+//            Log.d(TAG, "Permission denied.")
+//            Toast.makeText(context, "Permission not granted", Toast.LENGTH_SHORT).show()
+//        }
+//        else{
+//            Log.d(TAG, "Permission granted.")
+//        }
+//    }
+//    LaunchedEffect(Unit) {
+//        try {
+//            Log.d(TAG, "Checking permission...")
+//            if (ContextCompat.checkSelfPermission(
+//                    context,
+//                    Manifest.permission.READ_EXTERNAL_STORAGE
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                Log.d(TAG, "Requesting permission...")
+//                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+//            }
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Permission request error: ${e.message}")
+//        }
+//    }
 
 
 
