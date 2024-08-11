@@ -218,20 +218,36 @@ fun ProfileContent(
             modifier = Modifier
                 .size(100.dp)
                 .clickable {
+//                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                     photoPickerLauncher.launch("image/*")
                 },
             contentAlignment = Alignment.Center
         ) {
-            val imageUrl = selectedPhotoUri ?: userProfile?.get("photoUrl") as? Uri
+            val imageUrl =
+                selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
             Log.d(TAG, "Image URL: $imageUrl")
 
             if (imageUrl != null) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(imageUrl)
+                        .listener(
+                            onStart = {
+                                Log.d(TAG, "Image loading started")
+                            },
+                            onSuccess = { request, metadata ->
+                                Log.d(TAG, "Image loading successful")
+                            },
+                            onError = { request, throwable ->
+                                Log.e(
+                                    TAG,
+                                    "Image loading failed: ${throwable.throwable.message ?: "Unknown error"}"
+                                )
+                            }
+                        )
                         .transformations(CircleCropTransformation())
-                        .placeholder(R.drawable.ic_launcher_foreground)
-                        .error(R.drawable.ic_launcher_foreground)
+                        .placeholder(R.drawable.ic_launcher_foreground) // Replace with your placeholder drawable
+                        .error(R.drawable.ic_launcher_background) // Replace with your error drawable
                         .build(),
                     contentDescription = "Profile Picture",
                     modifier = Modifier
@@ -240,8 +256,10 @@ fun ProfileContent(
                         .border(1.dp, Color.Gray, CircleShape)
                 )
             } else {
+                Log.d(TAG, "No image URL available")
+                // Optionally display a default image or message
                 Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground), // Replace with a default image
                     contentDescription = "Default Profile Picture",
                     modifier = Modifier
                         .size(100.dp)
@@ -251,7 +269,7 @@ fun ProfileContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
         // Name Row
         Column(
@@ -288,6 +306,41 @@ fun ProfileContent(
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.error)
         ) {
             Text(text = "Logout")
+        }
+        Box {
+            val imageUrl =
+                selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
+            Log.d(TAG, "Image URL: $imageUrl")
+
+            if (imageUrl != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrl)
+                        .listener(
+                            onStart = {
+                                Log.d(TAG, "Image loading started")
+                            },
+                            onSuccess = { request, metadata ->
+                                Log.d(TAG, "Image loading successful")
+                            },
+                            onError = { request, throwable ->
+                                Log.e(
+                                    TAG,
+                                    "Image loading failed: ${throwable.throwable.message ?: "Unknown error"}"
+                                )
+                            }
+                        )
+                        .transformations(CircleCropTransformation())
+                        .placeholder(R.drawable.ic_launcher_foreground) // Replace with your placeholder drawable
+                        .error(R.drawable.ic_launcher_background) // Replace with your error drawable
+                        .build(),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Gray, CircleShape)
+                )
+            }
         }
     }
 }

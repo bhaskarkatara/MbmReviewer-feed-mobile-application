@@ -84,6 +84,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                 }
                 is PostResult.Success<*> -> {
                     val postList = (postsData as PostResult.Success<List<PostModel<Any?>>>).data ?: emptyList()
+                    Log.d(TAG, "FeedScreen: $postList")
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -238,7 +239,9 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
             Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
             Spacer(modifier = Modifier.height(8.dp))
             Image(
-                painter = rememberAsyncImagePainter(item.postImage),
+                painter = rememberAsyncImagePainter(model = item.postImage,
+                    onError = { Log.e(TAG, "Owner photo loading failed: ${it.result.throwable.message}")}
+                        ),
                 contentDescription = "Post Image",
                 modifier = Modifier
                     .fillMaxWidth()
