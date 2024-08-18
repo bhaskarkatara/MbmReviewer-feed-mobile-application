@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.window.application
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -41,7 +42,10 @@ import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -81,6 +85,14 @@ fun ProfileScreen(
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
+    // Function to handle image selection
+//    val imagePickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetContent()
+//    ) { uri: Uri? ->
+//        if (uri != null) {
+//            setSelectedPhotoUri(uri)
+//        }
+//    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -89,7 +101,7 @@ fun ProfileScreen(
                 userProfile = userProfile,
                 selectedPhotoUri = selectedPhotoUri,
                 onSave = { name, status ->
-                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context,)
+                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context)
                     scope.launch { sheetState.collapse() }
                 },
                 onCancel = { scope.launch { sheetState.collapse() } }
@@ -207,12 +219,14 @@ fun ProfileContent(
     photoPickerLauncher: ActivityResultLauncher<String>,
     onLogoutClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        var imageUrl: Uri? = null
         // Profile Picture
         Box(
             modifier = Modifier
@@ -223,38 +237,55 @@ fun ProfileContent(
                 },
             contentAlignment = Alignment.Center
         ) {
-            val imageUrl =
+             imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
-            Log.d(TAG, "Image URL: $imageUrl")
+//            Log.d(TAG, "Image URL: $imageUrl")
+            imageUrl.let {
+            uri ->
+            val documentId = UUID.randomUUID().toString() // Generate a random unique ID
+            val storageRef = FirebaseStorage.getInstance().reference
+            val imageRef = storageRef.child("images/$documentId.jpg")
+            val uploadTask = uri?.let { imageRef.putFile(it) }
 
+                uploadTask?.addOnSuccessListener {
+                    // Image upload successful
+                    Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
+                }?.addOnFailureListener { e ->
+                    // Image upload failed
+                    Toast.makeText(context, "Image upload failed: $e", Toast.LENGTH_SHORT).show()
+                }
+
+        }
             if (imageUrl != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUrl)
-                        .listener(
-                            onStart = {
-                                Log.d(TAG, "Image loading started")
-                            },
-                            onSuccess = { request, metadata ->
-                                Log.d(TAG, "Image loading successful")
-                            },
-                            onError = { request, throwable ->
-                                Log.e(
-                                    TAG,
-                                    "Image loading failed: ${throwable.throwable.message ?: "Unknown error"}"
-                                )
-                            }
-                        )
-                        .transformations(CircleCropTransformation())
-                        .placeholder(R.drawable.ic_launcher_foreground) // Replace with your placeholder drawable
-                        .error(R.drawable.ic_launcher_background) // Replace with your error drawable
-                        .build(),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, Color.Gray, CircleShape)
-                )
+                imageUrl?.let {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .listener(
+                                onStart = {
+                                    Log.d(TAG, "Image loading started")
+                                },
+                                onSuccess = { request, metadata ->
+                                    Log.d(TAG, "Image loading successful")
+                                },
+                                onError = { request, throwable ->
+                                    Log.e(
+                                        TAG,
+                                        "Image loading failed: ${throwable.throwable.message ?: "Unknown error"}"
+                                    )
+                                }
+                            )
+                            .transformations(CircleCropTransformation())
+                            .placeholder(R.drawable.ic_launcher_foreground) // Replace with your placeholder drawable
+                            .error(R.drawable.ic_launcher_background) // Replace with your error drawable
+                            .build(),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, Color.Gray, CircleShape)
+                    )
+                }
             } else {
                 Log.d(TAG, "No image URL available")
                 // Optionally display a default image or message
@@ -308,7 +339,7 @@ fun ProfileContent(
             Text(text = "Logout")
         }
         Box {
-            val imageUrl =
+             imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
             Log.d(TAG, "Image URL: $imageUrl")
 
@@ -363,6 +394,28 @@ fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         }
     )
 }
+
+
+fun uploadImageToFirebase(
+    imageUri: Uri,
+    userId: String,
+    onSuccess: (String) -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    val storageRef: StorageReference = FirebaseStorage.getInstance().reference
+    val imageRef: StorageReference = storageRef.child("profile_images/$userId.jpg")
+
+    val uploadTask = imageRef.putFile(imageUri)
+
+    uploadTask.addOnSuccessListener {
+        imageRef.downloadUrl.addOnSuccessListener { uri ->
+            onSuccess(uri.toString())
+        }
+    }.addOnFailureListener { exception ->
+        onFailure(exception)
+    }
+}
+
 fun saveProfile(
     userDetailsViewModel: UserDetailsViewModel,
     authViewModel: AuthViewModel,
@@ -372,28 +425,64 @@ fun saveProfile(
     context: Context
 ) {
     val email = authViewModel.auth.currentUser?.email
+    val userId = authViewModel.auth.currentUser?.uid
 
-    if (email != null) {
-        userDetailsViewModel.saveUserDetails(
-            userId = authViewModel.auth.currentUser!!.uid,
-            name = name,
-            status = status,
-            photoUrl = photoUri.toString(),
-            email = email.toString()
-        )
+    if (userId != null && email != null) {
+        if (photoUri != null) {
+            // Upload the image and save user details upon success
+            uploadImageToFirebase(
+                imageUri = photoUri,
+                userId = userId,
+                onSuccess = { photoUrl ->
+                    // Save user details along with the uploaded image URL
+                    userDetailsViewModel.saveUserDetails(
+                        userId = userId,
+                        name = name,
+                        status = status,
+                        photoUrl = photoUrl,
+                        email = email
+                    )
+                    Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                },
+                onFailure = { exception ->
+                    Toast.makeText(context, "Image upload failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+            )
+        } else {
+            // Save user details without image
+            userDetailsViewModel.saveUserDetails(
+                userId = userId,
+                name = name,
+                status = status,
+                photoUrl = null.toString(),
+                email = email
+            )
+            Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+        }
+    } else {
+        Toast.makeText(context, "User not authenticated!", Toast.LENGTH_SHORT).show()
     }
 }
-    fun fetchUserDetails(
-        userDetailsViewModel: UserDetailsViewModel,
-        authViewModel: AuthViewModel,
-        onResult: (Map<String, Any>?) -> Unit
-    ) {
-        val user = authViewModel.auth.currentUser
 
-        if (user != null) {
-            userDetailsViewModel.getUserDetails(
-                userId = user.uid
-            )
-        }
+fun fetchUserDetails(
+    userDetailsViewModel: UserDetailsViewModel,
+    authViewModel: AuthViewModel,
+    onResult: (Map<String, Any>?) -> Unit
+) {
+    val user = authViewModel.auth.currentUser
+    if (user != null) {
+        userDetailsViewModel.getUserDetails(
+            userId = user.uid)
+//        ).addOnSuccessListener { document ->
+//            if (document != null && document.exists()) {
+//                onResult(document.data)
+//            } else {
+//                onResult(null)
+//            }
+//        }.addOnFailureListener {
+//            Log.e(TAG, "Failed to fetch user details: ${it.message}")
+//        }
     }
+}
+
 

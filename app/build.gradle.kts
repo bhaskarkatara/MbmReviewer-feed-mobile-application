@@ -57,7 +57,8 @@ dependencies {
     implementation( libs.androidx.foundation)
     implementation (libs.material3)
     implementation (libs.androidx.navigation.compose.v240)
-
+    //firebase storage
+    implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material)
     implementation(libs.androidx.core.ktx)
@@ -71,6 +72,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.database.ktx)
+//    implementation(libs.androidx.ui.desktop)
     androidTestImplementation(libs.androidx.navigation.testing)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
