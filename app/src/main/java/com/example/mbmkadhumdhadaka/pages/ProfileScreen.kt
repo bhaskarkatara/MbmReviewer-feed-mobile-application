@@ -35,6 +35,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +68,7 @@ fun ProfileScreen(
     selectedPhotoUri: Uri?,
     setSelectedPhotoUri: (Uri?) -> Unit
 ) {
-    val isShowLogoutDialog = remember { mutableStateOf(false) }
+    val isShowLogoutDialog = rememberSaveable { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
     val context = LocalContext.current
 
@@ -95,7 +96,7 @@ fun ProfileScreen(
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
-    // Function to handle image selection
+
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -120,6 +121,7 @@ fun ProfileScreen(
                         scope.launch { sheetState.collapse() }
                     }
                 },
+                // this is what,like when user change their details hence it will refresh the screen
                 onRefreshClick = { fetchUserDetails(userDetailsViewModel, authViewModel) { details -> userProfile = details } }
             )
         }
@@ -241,20 +243,20 @@ fun ProfileContent(
         ) {
              imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
-            imageUrl.let {
-            uri ->
-            val documentId = UUID.randomUUID().toString() // Generate a random unique ID
-            val storageRef = FirebaseStorage.getInstance().reference
-            val imageRef = storageRef.child("images/$documentId.jpg")
-            val uploadTask = uri?.let { imageRef.putFile(it) }
-
-                uploadTask?.addOnSuccessListener {
-                    // Image upload successful
-                    Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
-                }?.addOnFailureListener { e ->
-                    // Image upload failed
-                    Toast.makeText(context, "Image upload failed: $e", Toast.LENGTH_SHORT).show()
-                }
+//            imageUrl.let {
+//            uri ->
+//            val documentId = UUID.randomUUID().toString() // Generate a random unique ID
+//            val storageRef = FirebaseStorage.getInstance().reference
+//            val imageRef = storageRef.child("images/$documentId.jpg")
+//            val uploadTask = uri?.let { imageRef.putFile(it) }
+//
+//                uploadTask?.addOnSuccessListener {
+//                    // Image upload successful
+//                    Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
+//                }?.addOnFailureListener { e ->
+//                    // Image upload failed
+//                    Toast.makeText(context, "Image upload failed: $e", Toast.LENGTH_SHORT).show()
+//                }
 
         }
             if (imageUrl != null) {
@@ -340,7 +342,7 @@ fun ProfileContent(
             Text(text = "Logout")
         }
     }
-}
+//}
 
 @Composable
 fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
@@ -348,6 +350,9 @@ fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(text = "Logout") },
         text = { Text(text = "Are you sure you want to logout?") },
+
+        // todo : we have to reset the details of current user when it press to yes(logout)
+
         confirmButton = {
             Button(onClick = onConfirm) {
                 Text("Yes")
@@ -363,21 +368,26 @@ fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
 
 
 fun uploadImageToFirebase(
+    context: Context,
     imageUri: Uri,
     userId: String,
     onSuccess: (String) -> Unit,
-    onFailure: (Exception) -> Unit
+    onFailure: (Exception) -> Unit,
+
 ) {
+
     val storageRef: StorageReference = FirebaseStorage.getInstance().reference
     val imageRef: StorageReference = storageRef.child("profile_images/$userId.jpg")
 
     val uploadTask = imageRef.putFile(imageUri)
 
     uploadTask.addOnSuccessListener {
+        Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
         imageRef.downloadUrl.addOnSuccessListener { uri ->
             onSuccess(uri.toString())
         }
     }.addOnFailureListener { exception ->
+        Toast.makeText(context, "Image upload failed: ${exception.message}", Toast.LENGTH_SHORT).show()
         onFailure(exception)
     }
 }
@@ -397,6 +407,7 @@ fun saveProfile(
         if (photoUri != null) {
             // Upload the image and save user details upon success
             uploadImageToFirebase(
+                context,
                 imageUri = photoUri,
                 userId = userId,
                 onSuccess = { photoUrl ->
@@ -406,7 +417,7 @@ fun saveProfile(
                         name = name,
                         status = status,
                         photoUrl = photoUrl,
-                        email = email
+                        email = email,
                     )
                     Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 },

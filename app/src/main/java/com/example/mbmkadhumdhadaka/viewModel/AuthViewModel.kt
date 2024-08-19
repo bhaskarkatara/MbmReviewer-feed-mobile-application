@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel : ViewModel() {
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
-    val authState: LiveData<AuthState> = _authState
+    val authState: LiveData<AuthState> = _authState // this variable is ready to exposed in outer world
 
     init {
         checkAuthStatus()
