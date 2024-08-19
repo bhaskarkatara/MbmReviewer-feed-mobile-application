@@ -56,7 +56,7 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
-import java.util.UUID
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -66,7 +66,7 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     photoPickerLauncher: ActivityResultLauncher<String>,
     selectedPhotoUri: Uri?,
-    setSelectedPhotoUri: (Uri?) -> Unit
+
 ) {
     val isShowLogoutDialog = rememberSaveable { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
@@ -103,7 +103,7 @@ fun ProfileScreen(
         sheetContent = {
             EditProfileContent(
                 userProfile = userProfile,
-                selectedPhotoUri = selectedPhotoUri,
+//                selectedPhotoUri = selectedPhotoUri,
                 onSave = { name, status ->
                     saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context)
                     scope.launch { sheetState.collapse() }
@@ -148,7 +148,7 @@ fun ProfileScreen(
 @Composable
 fun EditProfileContent(
     userProfile: Map<String, Any>?,
-    selectedPhotoUri: Uri?,
+
     onSave: (String, String) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -224,7 +224,7 @@ fun ProfileContent(
     photoPickerLauncher: ActivityResultLauncher<String>,
     onLogoutClick: () -> Unit
 ) {
-    val context = LocalContext.current
+//    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -424,7 +424,7 @@ fun saveProfile(
                 },
                 onFailure = { exception ->
                     Toast.makeText(context, "Image upload failed: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    Log.e(TAG, "saveProfile: ${exception.message}", )
+                    Log.e(TAG, "saveProfile: ${exception.message}")
                 }
             )
         } else {

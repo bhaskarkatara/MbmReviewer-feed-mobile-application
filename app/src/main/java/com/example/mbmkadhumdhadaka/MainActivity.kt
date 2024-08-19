@@ -1,9 +1,9 @@
 package com.example.mbmkadhumdhadaka
 
+//import com.example.mbmkadhumdhadaka.pages.ProfileScreen
 import ProfileScreen
 import android.app.Activity
 import android.content.ContentValues.TAG
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -46,7 +45,6 @@ import com.example.mbmkadhumdhadaka.pages.CreatePost
 import com.example.mbmkadhumdhadaka.pages.CreateReviewScreen
 import com.example.mbmkadhumdhadaka.pages.FeedScreen
 import com.example.mbmkadhumdhadaka.pages.LgSpScreen
-//import com.example.mbmkadhumdhadaka.pages.ProfileScreen
 import com.example.mbmkadhumdhadaka.pages.ReviewScreen
 import com.example.mbmkadhumdhadaka.pages.SplashScreen
 import com.example.mbmkadhumdhadaka.ui.theme.MbmKaDhumDhadakaTheme
@@ -190,7 +188,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         photoPickerLauncher = photoPickerLauncher,
                         selectedPhotoUri = selectedPhotoUriForProfile,
-                        setSelectedPhotoUri = setSelectedPhotoUriForProfile
+//                        setSelectedPhotoUri = setSelectedPhotoUriForProfile
                     )
                     isCreatePostScreen = false
                     isCreateReviewScreen = false
