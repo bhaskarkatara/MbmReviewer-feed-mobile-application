@@ -70,6 +70,8 @@ fun CreatePost(
     authViewModel: AuthViewModel,
 
     ) {
+
+
     var postContent by rememberSaveable { mutableStateOf("") }
     var isShowMedia by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
