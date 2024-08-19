@@ -209,7 +209,8 @@ class MainActivity : ComponentActivity() {
                         selectedPhotoUriForPost = selectedPhotoUriForPost,
                         setSelectedPhotoUriForPost = setSelectedPhotoUriForPost,
                         userDetailViewModel,
-                        postViewModel = postViewModel
+                        postViewModel = postViewModel,
+                        authViewModel
                     )
                     isCreatePostScreen = true
                     isCreateReviewScreen = false

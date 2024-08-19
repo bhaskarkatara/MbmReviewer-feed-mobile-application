@@ -241,7 +241,7 @@ fun ProfileContent(
                 },
             contentAlignment = Alignment.Center
         ) {
-             imageUrl =
+            imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
 //            imageUrl.let {
 //            uri ->
@@ -257,8 +257,8 @@ fun ProfileContent(
 //                    // Image upload failed
 //                    Toast.makeText(context, "Image upload failed: $e", Toast.LENGTH_SHORT).show()
 //                }
-
-        }
+//
+//        }
             if (imageUrl != null) {
                 imageUrl?.let {
                     AsyncImage(
@@ -303,7 +303,7 @@ fun ProfileContent(
             }
         }
 
-            Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Name Row
         Column(
@@ -341,8 +341,9 @@ fun ProfileContent(
         ) {
             Text(text = "Logout")
         }
+
     }
-//}
+}
 
 @Composable
 fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
