@@ -412,6 +412,7 @@ fun saveProfile(
                 },
                 onFailure = { exception ->
                     Toast.makeText(context, "Image upload failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "saveProfile: ${exception.message}", )
                 }
             )
         } else {
