@@ -54,6 +54,11 @@ import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
+// todo : solve error in profile screen after logout the first user details should be erase/clear
+// todo: add circular progress bar when post is clicked
+// todo : remove picture from create post screen ( picture which is posted by another user)
+// todo: logout means erase all the data of current user / completely new interface for new user
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

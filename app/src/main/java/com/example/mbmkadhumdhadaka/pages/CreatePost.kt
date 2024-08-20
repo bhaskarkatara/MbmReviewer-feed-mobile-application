@@ -113,7 +113,7 @@ fun CreatePost(
                                                     postImage = imageUrl,
                                                     postOwnerPhoto = userDetailsViewModel.userDetails.value?.get("photoUrl").toString(),
                                                     postOwnerName = userDetailsViewModel.userDetails.value?.get("name").toString(),
-                                                    userId = userDetailsViewModel.userDetails.value?.get("uid").toString(),
+                                                    userId = userId,
                                                     timestamp = System.currentTimeMillis()
                                                 )
                                             )

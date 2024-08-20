@@ -103,6 +103,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                             }
                         } else {
                             items(postList) { item ->
+//                                Log.d(TAG, "FeedScreen: $item")
                                 PostCard(item, authViewModel = AuthViewModel())
                             }
                         }
@@ -198,6 +199,7 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+        val context = LocalContext.current
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -214,7 +216,8 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {
-                    if (userId != null) {
+                    if (userId != null ) {
+                        Toast.makeText(context, "work here :", Toast.LENGTH_SHORT).show()
 
 //                        IconButton(onClick = { expanded = !expanded }) {
 //                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Options")
