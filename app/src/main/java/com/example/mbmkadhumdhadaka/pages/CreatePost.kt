@@ -108,7 +108,7 @@ fun CreatePost(
                                         onSuccess = { imageUrl ->
                                             postViewModel.createPost(
                                                 PostModel(
-                                                    postId = "", // Generate or use an ID if needed
+                                                    postId = userId, // Generate or use an ID if needed
                                                     postContent = postContent,
                                                     postImage = imageUrl,
                                                     postOwnerPhoto = userDetailsViewModel.userDetails.value?.get("photoUrl").toString(),

@@ -216,7 +216,7 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {
-                    if (userId != null ) {
+                    if (userId != null && item.postId == userId) {
                         Toast.makeText(context, "work here :", Toast.LENGTH_SHORT).show()
 
 //                        IconButton(onClick = { expanded = !expanded }) {
