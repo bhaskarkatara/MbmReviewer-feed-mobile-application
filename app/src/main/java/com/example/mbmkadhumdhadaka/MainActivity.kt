@@ -59,6 +59,8 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 // todo : remove picture from create post screen ( picture which is posted by another user)
 // todo: logout means erase all the data of current user / completely new interface for new user
 //todo: fix this: old post images is replacing with new post images
+// todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
+//todo : implement like feature
 
 class MainActivity : ComponentActivity() {
 

@@ -103,7 +103,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                             }
                         } else {
                             items(postList) { item ->
-//                                Log.d(TAG, "FeedScreen: $item")
+                                Log.d(TAG, "FeedScreen: $item")
                                 PostCard(item, authViewModel = AuthViewModel())
                             }
                         }
@@ -193,6 +193,8 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
     val authState by authViewModel.authState.observeAsState()
     var expanded by remember { mutableStateOf(false) }
     val userId = authViewModel.auth.currentUser?.uid
+
+    var likeCount by remember { mutableStateOf(0) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,9 +256,11 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
         }
         Spacer(modifier = Modifier.height(3.dp))
         Row {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { likeCount += 1 } ) {
                 Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
             }
+            Spacer(modifier  = Modifier.width(10.dp))
+            Text(text = "${likeCount}")
             Spacer(modifier = Modifier.width(10.dp))
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
