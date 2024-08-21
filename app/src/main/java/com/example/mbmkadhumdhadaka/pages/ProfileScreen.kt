@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -52,6 +53,7 @@ import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -66,8 +68,10 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     photoPickerLauncher: ActivityResultLauncher<String>,
     selectedPhotoUri: Uri?,
+    sharedViewModel: SharedViewModel
 
 ) {
+//    val sharedViewModel: SharedViewModel = viewModel()
     val isShowLogoutDialog = rememberSaveable { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
     val context = LocalContext.current
@@ -127,6 +131,7 @@ fun ProfileScreen(
         }
     ) { innerPadding ->
         ProfileContent(
+            sharedViewModel = sharedViewModel,
             userProfile = userProfile,
             selectedPhotoUri = selectedPhotoUri,
             photoPickerLauncher = photoPickerLauncher,
@@ -137,7 +142,9 @@ fun ProfileScreen(
             LogoutDialog(
                 onConfirm = {
                     authViewModel.signOut()
+                    userProfile = null
                     isShowLogoutDialog.value = false
+
                 },
                 onDismiss = { isShowLogoutDialog.value = false }
             )
@@ -219,6 +226,7 @@ fun ProfileTopBar(onEditClick: () -> Unit, onRefreshClick: () -> Unit) {
 
 @Composable
 fun ProfileContent(
+    sharedViewModel: SharedViewModel,
     userProfile: Map<String, Any>?,
     selectedPhotoUri: Uri?,
     photoPickerLauncher: ActivityResultLauncher<String>,
@@ -243,6 +251,8 @@ fun ProfileContent(
         ) {
             imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
+            Log.d(TAG, "ProfileContent: $imageUrl")
+               sharedViewModel.setImageUrl(imageUrl.toString())
 //            imageUrl.let {
 //            uri ->
 //            val documentId = UUID.randomUUID().toString() // Generate a random unique ID
@@ -355,7 +365,9 @@ fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         // todo : we have to reset the details of current user when it press to yes(logout)
 
         confirmButton = {
-            Button(onClick = onConfirm) {
+            Button(onClick = onConfirm,
+
+                ) {
                 Text("Yes")
             }
         },
@@ -454,5 +466,7 @@ fun fetchUserDetails(
             userId = user.uid)
     }
 }
+
+
 
 

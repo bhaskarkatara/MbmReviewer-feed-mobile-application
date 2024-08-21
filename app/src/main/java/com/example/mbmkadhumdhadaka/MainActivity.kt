@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -52,6 +53,7 @@ import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
+import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 // todo : solve error in profile screen after logout the first user details should be erase/clear
@@ -61,6 +63,7 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 //todo: fix this: old post images is replacing with new post images
 // todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
 //todo : implement like feature
+// todo: notification when someone posted or add review
 
 class MainActivity : ComponentActivity() {
 
@@ -71,6 +74,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val authViewModel: AuthViewModel = viewModel()
             val reviewViewModel: ReviewsViewModel = viewModel()
+
 
             MbmKaDhumDhadakaTheme {
                 MainContent(authViewModel, reviewViewModel)
@@ -196,6 +200,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         photoPickerLauncher = photoPickerLauncher,
                         selectedPhotoUri = selectedPhotoUriForProfile,
+                        sharedViewModel = SharedViewModel(),
 //                        setSelectedPhotoUri = setSelectedPhotoUriForProfile
                     )
                     isCreatePostScreen = false
@@ -216,7 +221,8 @@ class MainActivity : ComponentActivity() {
                         setSelectedPhotoUriForPost = setSelectedPhotoUriForPost,
                         userDetailViewModel,
                         postViewModel = postViewModel,
-                        authViewModel
+                        authViewModel,
+                        sharedViewModel = SharedViewModel()
                     )
                     isCreatePostScreen = true
                     isCreateReviewScreen = false
@@ -286,4 +292,3 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-

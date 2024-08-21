@@ -1,8 +1,5 @@
 package com.example.mbmkadhumdhadaka.dataModel
 
-//package com.example.mbmkadhumdhadaka.dataModel
-
-//package com.example.mbmkadhumdhadaka.dataModel
 
 data class PostModel<T>(
     val postId: String = "",
