@@ -64,6 +64,7 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 // todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
 //todo : implement like feature
 // todo: notification when someone posted or add review
+//todo: will fix SharedViewModel to get image url
 
 class MainActivity : ComponentActivity() {
 
