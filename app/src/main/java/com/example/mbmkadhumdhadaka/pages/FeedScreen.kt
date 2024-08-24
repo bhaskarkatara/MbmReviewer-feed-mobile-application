@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -243,6 +247,8 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
             Spacer(modifier = Modifier.height(8.dp))
+            var showFullScreenImage by remember { mutableStateOf(false) }
+
             Image(
                 painter = rememberAsyncImagePainter(model = item.postImage,
                     onError = { Log.e(TAG, "Owner photo loading failed: ${it.result.throwable.message}")}
@@ -251,9 +257,13 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .border(0.dp, Color.Gray, RectangleShape)
+                    .border(0.dp, Color.Gray, RectangleShape).clickable {
+
+                    }
             )
+
         }
+
         Spacer(modifier = Modifier.height(3.dp))
         Row {
             IconButton(onClick = { likeCount += 1 } ) {
@@ -274,4 +284,36 @@ fun formatTimeStamp(timestamp: Long): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val date = Date(timestamp)
     return sdf.format(date)
+}
+
+@Composable
+fun ZoomableImage(imageUrl: String) {
+    var scale by remember { mutableStateOf(1f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale *= zoom
+                    offsetX += pan.x
+                    offsetY += pan.y
+                }
+            }
+            .graphicsLayer(
+                scaleX = maxOf(1f, minOf(3f, scale)),
+                scaleY = maxOf(1f, minOf(3f, scale)),
+                translationX = offsetX,
+                translationY = offsetY
+            )
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(imageUrl),
+            contentDescription = "Zoomable Image",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

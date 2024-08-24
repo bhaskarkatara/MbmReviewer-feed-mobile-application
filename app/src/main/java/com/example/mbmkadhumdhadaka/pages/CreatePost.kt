@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -59,11 +60,13 @@ import coil.request.ImageRequest
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.util.UUID
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +92,9 @@ fun CreatePost(
     val userId = authViewModel.auth.currentUser?.uid
 //    val sharedViewModel: SharedViewModel = viewModel()
     val imageUrl by sharedViewModel.imageUrl.observeAsState()
-
+    val newPostId = UUID.randomUUID().toString()
+//    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -107,6 +112,7 @@ fun CreatePost(
                         onClick = {
                             if (postContent.isNotEmpty()) {
                                 selectedPhotoUriForPost?.let { uri ->
+                                    isLoading = true;
                                     uploadPostToFirebase(
                                         context = context,
                                         imageUri = uri,
@@ -114,7 +120,7 @@ fun CreatePost(
                                         onSuccess = { imageUrl ->
                                             postViewModel.createPost(
                                                 PostModel(
-                                                    postId = "", // todo: generate new post Id
+                                                    postId = newPostId, // todo: generate new post Id
                                                     postContent = postContent,
                                                     postImage = imageUrl,
                                                     postOwnerPhoto = userDetailsViewModel.userDetails.value?.get("photoUrl").toString(),
@@ -123,6 +129,10 @@ fun CreatePost(
                                                     timestamp = System.currentTimeMillis()
                                                 )
                                             )
+                                                isLoading = false;
+//                                            sharedViewModel.setImageUrl(null)
+                                            postContent = ""
+                                            setSelectedPhotoUriForPost(null)
                                             navController.navigateUp()
                                         },
                                         onFailure = {
@@ -142,6 +152,9 @@ fun CreatePost(
                             containerColor = if (postContent.isNotEmpty()) Color.Red else Color.Transparent
                         )
                     ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                        }
                         Text(text = "Post")
                     }
                 }

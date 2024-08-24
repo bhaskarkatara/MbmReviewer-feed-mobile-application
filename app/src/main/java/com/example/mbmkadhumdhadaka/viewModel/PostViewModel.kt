@@ -20,9 +20,8 @@ class PostViewModel : ViewModel() {
         loadPosts()
     }
 
-
-
     fun createPost(post: PostModel<Any?>) {
+        _postsData.value = PostResult.Loading
         viewModelScope.launch {
             try {
                 postRepository.createPost(post)
