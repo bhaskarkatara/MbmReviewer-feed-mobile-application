@@ -49,7 +49,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
+fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authViewModel: AuthViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
@@ -73,7 +73,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                     try {
                         postViewModel.loadPosts()
                     } catch (e: Exception) {
-                        Log.e(TAG, "FeedScreen: $e")
+//                        Log.e(TAG, "FeedScreen: $e")
                         Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
                     }
                 }) {
@@ -88,7 +88,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                 }
                 is PostResult.Success<*> -> {
                     val postList = (postsData as PostResult.Success<List<PostModel<Any?>>>).data ?: emptyList()
-                    Log.d(TAG, "FeedScreen: $postList")
+//                    Log.d(TAG, "FeedScreen: $postList")
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -106,9 +106,9 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel) {
                                 )
                             }
                         } else {
-                            items(postList) { item ->
+                            items(postList, key = {it.postId}) { item ->
                                 Log.d(TAG, "FeedScreen: $item")
-                                PostCard(item, authViewModel = AuthViewModel())
+                                PostCard(item, authViewModel)
                             }
                         }
                     }
@@ -247,8 +247,9 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
             Spacer(modifier = Modifier.height(8.dp))
-            var showFullScreenImage by remember { mutableStateOf(false) }
+//            var showFullScreenImage by remember { mutableStateOf(false) }
 
+//            Log.d("PostCard", "PostCard: ${item.postImage}")
             Image(
                 painter = rememberAsyncImagePainter(model = item.postImage,
                     onError = { Log.e(TAG, "Owner photo loading failed: ${it.result.throwable.message}")}
@@ -263,7 +264,7 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
             )
 
         }
-
+  Log.d("PostCard", "PostCard: ${item.postImage}")
         Spacer(modifier = Modifier.height(3.dp))
         Row {
             IconButton(onClick = { likeCount += 1 } ) {

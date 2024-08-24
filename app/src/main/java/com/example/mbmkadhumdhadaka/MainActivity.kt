@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
                     isSplashScreen = false
                 }
                 composable(Screens.FeedScreen.route) {
-                    FeedScreen(navController = navController, postViewModel = postViewModel)
+                    FeedScreen(navController = navController, postViewModel = postViewModel,authViewModel = authViewModel)
                     BackHandler {
                         (context as? Activity)?.finish()
                     }
