@@ -225,20 +225,7 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                     if (userId != null) {
                         Toast.makeText(context, "work here :", Toast.LENGTH_SHORT).show()
 
-//                        IconButton(onClick = { expanded = !expanded }) {
-//                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Options")
-//                        }
-//                        DropdownMenu(
-//                            expanded = expanded,
-//                            onDismissRequest = { expanded = false }
-//                        ) {
-//                            DropdownMenuItem(onClick = { /* Handle edit action */ }) {
-//                                Text("Edit")
-//                            }
-//                            DropdownMenuItem(onClick = { /* Handle delete action */ }) {
-//                                Text("Delete")
-//                            }
-//                        }
+
                     }
                 }) {
                     Icon(imageVector = Icons.Default.MoreVert, contentDescription = "dots")
@@ -271,7 +258,7 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                 Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
             }
             Spacer(modifier  = Modifier.width(10.dp))
-            Text(text = "${likeCount}")
+//            Text(text = "${likeCount}")
             Spacer(modifier = Modifier.width(10.dp))
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
