@@ -7,9 +7,8 @@ class SharedViewModel : ViewModel(){
     val imageUrl: MutableLiveData<String?> get() = _imageUrl
 
     fun setImageUrl(url: String) {
-
         _imageUrl.value = url
-//        Log.d("SharedViewModel", "setImageUrl: $url")
+        Log.d("SharedViewModel", "Image URL set to: $url")
     }
 }
 

@@ -92,6 +92,10 @@ fun CreatePost(
     val userId = authViewModel.auth.currentUser?.uid
 //    val sharedViewModel: SharedViewModel = viewModel()
     val imageUrl by sharedViewModel.imageUrl.observeAsState()
+//    val imageUrl = sharedViewModel._imageUrl.value
+
+    Log.d("check", "imageUrl: $imageUrl")
+
     val newPostId = UUID.randomUUID().toString()
 //    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
     var isLoading by rememberSaveable { mutableStateOf(false) }
