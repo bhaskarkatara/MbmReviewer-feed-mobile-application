@@ -57,8 +57,6 @@ import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 // todo : solve error in profile screen after logout the first user details should be erase/clear
-// todo: add circular progress bar when post is clicked
-// todo : remove picture from create post screen ( picture which is posted by another user)
 // todo: logout means erase all the data of current user / completely new interface for new user
 //todo: fix this: old post images is replacing with new post images
 // todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
