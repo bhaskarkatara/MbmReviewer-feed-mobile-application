@@ -2,7 +2,7 @@ package com.example.mbmkadhumdhadaka.dataModel
 
 
 data class PostModel<T>(
-    val postId: String = "",
+    var postId: String = "",
     val postContent: String = "",
     val postImage: String = "",
     val postOwnerPhoto: String = "",

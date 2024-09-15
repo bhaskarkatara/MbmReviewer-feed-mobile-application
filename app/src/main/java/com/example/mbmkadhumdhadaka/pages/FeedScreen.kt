@@ -88,7 +88,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                 }
                 is PostResult.Success<*> -> {
                     val postList = (postsData as PostResult.Success<List<PostModel<Any?>>>).data ?: emptyList()
-//                    Log.d(TAG, "FeedScreen: $postList")
+                    Log.d(TAG, "FeedScreenPosts: $postList")
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()

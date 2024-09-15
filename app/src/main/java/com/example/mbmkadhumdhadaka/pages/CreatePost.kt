@@ -96,7 +96,7 @@ fun CreatePost(
 
     Log.d("check", "imageUrl: $imageUrl")
 
-    val newPostId = UUID.randomUUID().toString()
+//    val newPostId = UUID.randomUUID().toString()
 //    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
     var isLoading by rememberSaveable { mutableStateOf(false) }
     Scaffold(
@@ -124,14 +124,15 @@ fun CreatePost(
                                         onSuccess = { imageUrl ->
                                             postViewModel.createPost(
                                                 PostModel(
-                                                    postId = newPostId, // todo: generate new post Id
+                                                    postId = "", // todo: generate new post Id
                                                     postContent = postContent,
                                                     postImage = imageUrl,
                                                     postOwnerPhoto = userDetailsViewModel.userDetails.value?.get("photoUrl").toString(),
                                                     postOwnerName = userDetailsViewModel.userDetails.value?.get("name").toString(),
                                                     userId = userId,
                                                     timestamp = System.currentTimeMillis()
-                                                )
+                                                ),
+
                                             )
                                                 isLoading = false;
 //                                            sharedViewModel.setImageUrl(null)
@@ -158,7 +159,9 @@ fun CreatePost(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                            Toast.makeText(context,"please don't press back button",Toast.LENGTH_SHORT).show()
                         }
+
                         Text(text = "Post")
                     }
                 }

@@ -2,14 +2,28 @@ package com.example.mbmkadhumdhadaka.repository
 
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
-class PostRepository(private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()) {
+class PostRepository(private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+                     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    ) {
 
+    // Create a new post with a unique ID
     suspend fun createPost(post: PostModel<Any?>) {
-        firestore.collection("posts").add(post)
-    }
+        try {
+            // Generate a unique post ID using UUID
+            val postId = UUID.randomUUID().toString()
+            post.postId = postId  // Ensure postId is set in the post model
 
+            // Add the post to the 'posts' collection
+            firestore.collection("posts").document(postId).set(post).await()
+        } catch (e: Exception) {
+            // Handle any errors that occur during post creation
+            throw e  // You can log this or show a UI message in your app
+        }
+    }
     suspend fun loadPosts(): List<PostModel<Any?>> {
         val querySnapshot = firestore.collection("posts").get().await()
         return querySnapshot.documents.mapNotNull { document ->
