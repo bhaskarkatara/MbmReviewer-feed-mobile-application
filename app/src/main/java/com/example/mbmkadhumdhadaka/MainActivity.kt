@@ -58,11 +58,10 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 // todo : solve error in profile screen after logout the first user details should be erase/clear
 // todo: logout means erase all the data of current user / completely new interface for new user
-//todo: fix this: old post images is replacing with new post images
 // todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
 //todo : implement like feature
 // todo: notification when someone posted or add review
- //todo: will fix SharedViewModel to get image url--> FIXED( viewmodel is created every time so , the data will be lost everytime)
+
 
 class MainActivity : ComponentActivity() {
 
