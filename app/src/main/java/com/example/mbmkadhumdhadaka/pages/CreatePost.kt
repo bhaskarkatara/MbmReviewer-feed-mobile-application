@@ -96,7 +96,7 @@ fun CreatePost(
 
     Log.d("check", "imageUrl: $imageUrl")
 
-//    val newPostId = UUID.randomUUID().toString()
+    val newPostId = UUID.randomUUID().toString()
 //    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
     var isLoading by rememberSaveable { mutableStateOf(false) }
     Scaffold(
@@ -120,11 +120,12 @@ fun CreatePost(
                                     uploadPostToFirebase(
                                         context = context,
                                         imageUri = uri,
-                                        userId = userId!!,
+//                                        userId = userId!!,
+                                        postId = newPostId,
                                         onSuccess = { imageUrl ->
                                             postViewModel.createPost(
                                                 PostModel(
-                                                    postId = "", // todo: generate new post Id
+                                                    postId = newPostId, // todo: generate new post Id
                                                     postContent = postContent,
                                                     postImage = imageUrl,
                                                     postOwnerPhoto = userDetailsViewModel.userDetails.value?.get("photoUrl").toString(),
@@ -311,12 +312,13 @@ fun CreatePost(
 fun uploadPostToFirebase(
     context: Context,
     imageUri: Uri,
-    userId: String,
+//    userId: String,
+    postId: String,
     onSuccess: (String) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
     val storageRef: StorageReference = FirebaseStorage.getInstance().reference
-    val imageRef: StorageReference = storageRef.child("post_images/$userId.jpg")
+    val imageRef: StorageReference = storageRef.child("post_images/$postId.jpg")
 
     val uploadTask = imageRef.putFile(imageUri)
 
