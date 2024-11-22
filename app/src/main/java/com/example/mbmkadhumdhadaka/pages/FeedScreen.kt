@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
@@ -53,110 +55,80 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
+    var fullScreenImageUrl by remember { mutableStateOf<String?>(null) } // State to handle full-screen image
     val context = LocalContext.current
-
     val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row {
+            // App Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "MbmKaDhoomDhadaka...",
-                    style = TextStyle(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.padding(16.dp)
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
-                Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {
                     try {
                         postViewModel.loadPosts()
                     } catch (e: Exception) {
-//                        Log.e(TAG, "FeedScreen: $e")
                         Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
                     }
                 }) {
-                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "refresh")
+                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
                 }
             }
 
+            // Posts Content
             when (postsData) {
-                is PostResult.Loading -> {
-                    // Display loading indicator
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
+                is PostResult.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 is PostResult.Success<*> -> {
                     val postList = (postsData as PostResult.Success<List<PostModel<Any?>>>).data ?: emptyList()
-                    Log.d(TAG, "FeedScreenPosts: $postList")
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(10.dp)
+                            .padding(horizontal = 10.dp)
                     ) {
                         if (postList.isEmpty()) {
                             item {
                                 Text(
-                                    text = "No post Available",
+                                    text = "No posts available",
                                     modifier = Modifier.fillMaxWidth(),
-                                    style = TextStyle(
-                                        fontSize = 20.sp,
-                                        textAlign = TextAlign.Center
-                                    )
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         } else {
-                            items(postList, key = {it.postId}) { item ->
-                                Log.d(TAG, "FeedScreen: $item")
-                                PostCard(item, authViewModel)
+                            items(postList, key = { it.postId }) { item ->
+                                PostCard(item, authViewModel) { imageUrl ->
+                                    fullScreenImageUrl = imageUrl
+                                }
                             }
                         }
                     }
-//                    Log.d(TAG, "Loaded data: ${postList.size} posts")
                 }
-                is PostResult.Error -> {
-                    // Display error message
-                    Text(text = (postsData as PostResult.Error).exception, color = Color.Red)
-                }
+                is PostResult.Error -> Text(
+                    text = (postsData as PostResult.Error).exception,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
-        if (isClickToFeedback) {
-            AlertDialog(
-                onDismissRequest = { isClickToFeedback = false },
-                title = { Text(text = "कैसा लगा ?") },
-                text = {
-                    Column {
-                        Text(text = "कुछ मन में हो तो लिख दीजिए")
-                        TextField(
-                            value = feedbackText,
-                            onValueChange = { feedbackText = it },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            if (feedbackText.isNotEmpty()) {
-                                // Replace with actual feedback function
-                                Toast.makeText(context, "Thank You :)", Toast.LENGTH_SHORT).show()
-                                feedbackText = "" // Clear the feedback text after submission
-                                isClickToFeedback = false
-                            }
-                        }
-                    ) {
-                        Text(text = "Rate")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { isClickToFeedback = false }) {
-                        Text(text = "Cancel")
-                    }
-                }
-            )
+        // Full-Screen Image Dialog
+        fullScreenImageUrl?.let { imageUrl ->
+            Dialog(onDismissRequest = { fullScreenImageUrl = null }) {
+                ZoomableImage(imageUrl = imageUrl, onClose = { fullScreenImageUrl = null })
+            }
         }
 
+        // Floating Action Buttons
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -165,47 +137,29 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                 .align(Alignment.BottomEnd)
         ) {
             if (isMenuExpanded) {
-                FloatingActionButton(
-                    onClick = { isClickToFeedback = true },
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ) {
+                FloatingActionButton(onClick = { isClickToFeedback = true }) {
                     Icon(imageVector = Icons.Default.Star, contentDescription = "Rate this app")
                 }
-                FloatingActionButton(
-                    onClick = { navController.navigate("create_post_screen") },
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ) {
+                FloatingActionButton(onClick = { navController.navigate("create_post_screen") }) {
                     Icon(imageVector = Icons.Default.Edit, contentDescription = "Create Post")
                 }
             }
-
-            FloatingActionButton(
-                onClick = { isMenuExpanded = !isMenuExpanded },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Toggle Menu"
-                )
+            FloatingActionButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                Icon(imageVector = if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add, contentDescription = "Toggle Menu")
             }
         }
     }
 }
 
 @Composable
-fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
-    val authState by authViewModel.authState.observeAsState()
-    var expanded by remember { mutableStateOf(false) }
-    val userId = authViewModel.auth.currentUser?.uid
-
-    var likeCount by remember { mutableStateOf(0) }
+fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel, onImageClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable { /* Handle post click if needed */ },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        val context = LocalContext.current
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -214,60 +168,36 @@ fun PostCard(item: PostModel<Any?>,authViewModel: AuthViewModel) {
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .padding(end = 8.dp)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = item.postOwnerName,
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = {
-                    if (userId != null) {
-                        Toast.makeText(context, "work here :", Toast.LENGTH_SHORT).show()
-
-
-                    }
-                }) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "dots")
+                IconButton(onClick = { /* Show menu or options */ }) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Options")
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = item.postContent, style = TextStyle(fontSize = 14.sp))
+            Text(text = item.postContent, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
-//            var showFullScreenImage by remember { mutableStateOf(false) }
-
-//            Log.d("PostCard", "PostCard: ${item.postImage}")
             Image(
-                painter = rememberAsyncImagePainter(model = item.postImage,
-                    onError = { Log.e(TAG, "Owner photo loading failed: ${it.result.throwable.message}")}
-                        ),
+                painter = rememberAsyncImagePainter(model = item.postImage),
                 contentDescription = "Post Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .border(0.dp, Color.Gray, RectangleShape).clickable {
-
-                    }
+                    .clip(RectangleShape)
+                    .clickable { onImageClick(item.postImage ?: "") },
+                contentScale = ContentScale.Crop
             )
-
-        }
-  Log.d("PostCard", "PostCard: ${item.postImage}")
-        Spacer(modifier = Modifier.height(3.dp))
-        Row {
-            IconButton(onClick = { likeCount += 1 } ) {
-                Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "like")
-            }
-            Spacer(modifier  = Modifier.width(10.dp))
-//            Text(text = "${likeCount}")
-            Spacer(modifier = Modifier.width(10.dp))
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "save post")
-            }
-            Spacer(modifier = Modifier.width(80.dp))
-            Text(text = formatTimeStamp(item.timestamp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
+
+
 fun formatTimeStamp(timestamp: Long): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val date = Date(timestamp)
@@ -275,33 +205,36 @@ fun formatTimeStamp(timestamp: Long): String {
 }
 
 @Composable
-fun ZoomableImage(imageUrl: String) {
-    var scale by remember { mutableStateOf(1f) }
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
-
+fun ZoomableImage(imageUrl: String, onClose: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    scale *= zoom
-                    offsetX += pan.x
-                    offsetY += pan.y
-                }
-            }
-            .graphicsLayer(
-                scaleX = maxOf(1f, minOf(3f, scale)),
-                scaleY = maxOf(1f, minOf(3f, scale)),
-                translationX = offsetX,
-                translationY = offsetY
-            )
+            .background(Color.Black)
+            .clickable { onClose() }
     ) {
+        var scale by remember { mutableStateOf(1f) }
+        var offsetX by remember { mutableStateOf(0f) }
+        var offsetY by remember { mutableStateOf(0f) }
+
         Image(
             painter = rememberAsyncImagePainter(imageUrl),
             contentDescription = "Zoomable Image",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = scale.coerceIn(1f, 3f),
+                    scaleY = scale.coerceIn(1f, 3f),
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale *= zoom
+                        offsetX += pan.x
+                        offsetY += pan.y
+                    }
+                },
+            contentScale = ContentScale.Fit
         )
     }
 }
