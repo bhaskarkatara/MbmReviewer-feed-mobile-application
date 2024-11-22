@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -136,6 +135,41 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                 .padding(16.dp)
                 .align(Alignment.BottomEnd)
         ) {
+            if (isClickToFeedback) {
+                AlertDialog(
+                    onDismissRequest = { isClickToFeedback = false },
+                    title = { Text(text = "कैसा लगा ?") },
+                    text = {
+                        Column {
+                            Text(text = "कुछ मन में हो तो लिख दीजिए")
+                            TextField(
+                                value = feedbackText,
+                                onValueChange = { feedbackText = it },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (feedbackText.isNotEmpty()) {
+                                    // Replace with actual feedback function
+                                    Toast.makeText(context, "Thank You :)", Toast.LENGTH_SHORT).show()
+                                    feedbackText = "" // Clear the feedback text after submission
+                                    isClickToFeedback = false
+                                }
+                            }
+                        ) {
+                            Text(text = "Rate")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { isClickToFeedback = false }) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                )
+            }
             if (isMenuExpanded) {
                 FloatingActionButton(onClick = { isClickToFeedback = true }) {
                     Icon(imageVector = Icons.Default.Star, contentDescription = "Rate this app")
@@ -195,13 +229,6 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel, onImageClick: 
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
-}
-
-
-fun formatTimeStamp(timestamp: Long): String {
-    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val date = Date(timestamp)
-    return sdf.format(date)
 }
 
 @Composable
