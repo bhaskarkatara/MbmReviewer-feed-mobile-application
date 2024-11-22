@@ -58,7 +58,6 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 
 // todo : solve error in profile screen after logout the first user details should be erase/clear
 // todo: logout means erase all the data of current user / completely new interface for new user
-// todo : fix userid == post id in feed screen , in firebase all stuff is right but i received post id and user id different -2
 //todo : implement like feature
 // todo: notification when someone posted or add review
 
@@ -72,16 +71,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             val authViewModel: AuthViewModel = viewModel()
             val reviewViewModel: ReviewsViewModel = viewModel()
-
+            val userDetailViewModel: UserDetailsViewModel = viewModel()
 
             MbmKaDhumDhadakaTheme {
-                MainContent(authViewModel, reviewViewModel)
+                MainContent(authViewModel, reviewViewModel,userDetailViewModel)
             }
         }
     }
 
     @Composable
-    fun MainContent(authViewModel: AuthViewModel, reviewsViewModel: ReviewsViewModel) {
+    fun MainContent(authViewModel: AuthViewModel, reviewsViewModel: ReviewsViewModel,userDetailViewModel: UserDetailsViewModel) {
         var selectedPhotoUriForProfile by remember { mutableStateOf<Uri?>(null) }
         var selectedPhotoUriForPost by remember { mutableStateOf<Uri?>(null) }
         var selectedVideoUriForPost by remember { mutableStateOf<Uri?>(null) }
@@ -106,6 +105,7 @@ class MainActivity : ComponentActivity() {
 
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Navigation(
+                userDetailViewModel,
                 authViewModel = authViewModel,
                 reviewsViewModel = reviewsViewModel,
                 photoPickerLauncher = photoPickerLauncher,
@@ -123,6 +123,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Navigation(
+        userDetailViewModel: UserDetailsViewModel,
         authViewModel: AuthViewModel,
         reviewsViewModel: ReviewsViewModel,
         photoPickerLauncher: ActivityResultLauncher<String>,
@@ -142,9 +143,8 @@ class MainActivity : ComponentActivity() {
         var isSplashScreen by remember { mutableStateOf(true) }
 
         val authState = authViewModel.authState.observeAsState()
-        val userDetailViewModel: UserDetailsViewModel = viewModel()
         val postViewModel: PostViewModel = viewModel()
-       val sharedViewModel : SharedViewModel= viewModel()
+        val sharedViewModel : SharedViewModel= viewModel()
 
 
         Scaffold(
