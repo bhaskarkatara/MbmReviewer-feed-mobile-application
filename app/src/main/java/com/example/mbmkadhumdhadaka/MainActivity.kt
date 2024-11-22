@@ -55,9 +55,6 @@ import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
-
-// todo : solve error in profile screen after logout the first user details should be erase/clear
-// todo: logout means erase all the data of current user / completely new interface for new user
 //todo : implement like feature
 // todo: notification when someone posted or add review
 
