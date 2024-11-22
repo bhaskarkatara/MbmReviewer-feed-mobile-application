@@ -44,6 +44,9 @@ class PostViewModel : ViewModel() {
             }
         }
     }
+    fun resetPostsData() {
+//        _postsData.value = PostResult.Success(postsData)
+    }
 }
 
 sealed class PostResult<out T> {

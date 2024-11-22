@@ -53,6 +53,7 @@ import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import com.google.firebase.storage.FirebaseStorage
@@ -63,6 +64,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
+    postViewModel: PostViewModel,
     userDetailsViewModel: UserDetailsViewModel,
     navController: NavController,
     authViewModel: AuthViewModel,
@@ -75,7 +77,7 @@ fun ProfileScreen(
     val isShowLogoutDialog = rememberSaveable { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
     val context = LocalContext.current
-
+//     val userData by userDetailsViewModel.userDetails.observeAsState()
     // State for user profile
     var userProfile by remember { mutableStateOf<Map<String, Any>?>(null) }
 
@@ -141,8 +143,10 @@ fun ProfileScreen(
         if (isShowLogoutDialog.value) {
             LogoutDialog(
                 onConfirm = {
+//                    postViewModel.resetPostsData();
                     authViewModel.signOut()
                     userProfile = null
+                    userDetailsViewModel.resetCurrentUser();
                     isShowLogoutDialog.value = false
 
                 },

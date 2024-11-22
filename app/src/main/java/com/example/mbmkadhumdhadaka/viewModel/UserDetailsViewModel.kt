@@ -26,6 +26,9 @@ class UserDetailsViewModel : ViewModel() {
         }
 
     }
+    fun resetCurrentUser(){
+        _userDetails.value = null;
+    }
 
 }
 sealed class UserDetailsState {

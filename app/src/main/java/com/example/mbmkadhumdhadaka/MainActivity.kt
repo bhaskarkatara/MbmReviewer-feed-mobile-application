@@ -195,6 +195,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Screens.ProfileScreen.route) {
                     ProfileScreen(
+                        postViewModel,
                         userDetailViewModel,
                         navController = navController,
                         authViewModel = authViewModel,
