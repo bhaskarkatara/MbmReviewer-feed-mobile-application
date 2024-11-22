@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -184,38 +185,60 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
         }
     }
 }
-
 @Composable
-fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel, onImageClick: (String) -> Unit) {
+fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,onImageClick: (String) -> Unit) {
+    val userId = authViewModel.auth.currentUser?.uid
+    var isLiked by remember { mutableStateOf(false) }
+    var likeCount by remember { mutableStateOf( 0) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { /* Handle post click if needed */ },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
                     painter = rememberAsyncImagePainter(item.postOwnerPhoto),
-                    contentDescription = "Owner Photo",
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item.postOwnerName,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                )
+                Column {
+                    Text(
+                        text = item.postOwnerName,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        text = formatTimeStamp(item.timestamp),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /* Show menu or options */ }) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Options")
+                IconButton(onClick = { /* TODO: Show post options */ }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Options"
+                    )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = item.postContent, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = item.postContent,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
             Image(
                 painter = rememberAsyncImagePainter(model = item.postImage),
                 contentDescription = "Post Image",
@@ -226,17 +249,52 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel, onImageClick: 
                     .clickable { onImageClick(item.postImage ?: "") },
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = {
+                        isLiked = !isLiked
+                        likeCount += if (isLiked) 1 else -1
+                    }) {
+                        Icon(
+                            imageVector = if (isLiked) Icons.Filled.FavoriteBorder else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Like",
+                            tint = if (isLiked) Color.Red else Color.Gray
+                        )
+                    }
+                    Text(text = "$likeCount likes", style = MaterialTheme.typography.bodySmall)
+                }
+                TextButton(onClick = { /* TODO: Show comments */ }) {
+                    Text(text = "Comments", style = MaterialTheme.typography.bodySmall)
+                }
+                IconButton(onClick = { /* TODO: Save post */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Save"
+                    )
+                }
+            }
         }
     }
 }
 
+fun formatTimeStamp(timestamp: Long): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = Date(timestamp)
+    return sdf.format(date)
+}
 @Composable
 fun ZoomableImage(imageUrl: String, onClose: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+//            .background(Color.Black)
             .clickable { onClose() }
     ) {
         var scale by remember { mutableStateOf(1f) }
