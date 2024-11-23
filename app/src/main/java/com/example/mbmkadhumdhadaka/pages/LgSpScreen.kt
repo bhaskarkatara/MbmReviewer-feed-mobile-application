@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -48,9 +49,11 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
     val showDialog = remember {
         mutableStateOf(false)
     }
+    val selectedScreen = remember { mutableStateOf("Register") }
     val emailLinkClick = remember { mutableStateOf(false) }
  val context = LocalContext.current
     val authState = authViewModel.authState.observeAsState()
+
     LaunchedEffect (authState.value){
           when(authState.value){
               is AuthState.Authenticated ->{
@@ -74,7 +77,13 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
                 registerClick.value = true
                 loginClick.value = false
                 emailLinkClick.value = false
-            }) {
+                selectedScreen.value = "Register"
+            },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (selectedScreen.value == "Register") Color(0xFF4CAF50) else Color.Transparent,
+//                    contentColor = if (selectedScreen.value  == "Login") Color.White else Color.Black
+                )
+                ) {
                 Text(text = "Register")
 
             }
@@ -83,7 +92,14 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
                 loginClick.value= true
                 registerClick.value = false
                 emailLinkClick.value = false
-            }) {
+                selectedScreen.value = "Login"
+
+            },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (selectedScreen.value ==  "Login") Color(0xFF4CAF50) else Color.Transparent,
+//                    contentColor = if (selectedScreen.value == "Register") Color.White else Color.Black
+                )
+                ) {
                 Text(text = "Login")
 
             }
