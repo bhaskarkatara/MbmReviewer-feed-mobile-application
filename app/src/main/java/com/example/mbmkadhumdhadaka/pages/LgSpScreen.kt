@@ -2,8 +2,10 @@ package com.example.mbmkadhumdhadaka.pages
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.google.android.gms.auth.api.Auth
@@ -67,39 +72,55 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
           }
     }
 
+Box(
+    modifier = Modifier
+        .fillMaxSize() //  the background covers the entire screen
+) {
 
-    Column (modifier = Modifier.padding(50.dp), horizontalAlignment = Alignment.CenterHorizontally){
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.Center){
-            OutlinedButton(onClick = {
-                registerClick.value = true
-                loginClick.value = false
-                emailLinkClick.value = false
-                selectedScreen.value = "Register"
-            },
+    // Background Image
+    Image(
+        painter = painterResource(id = R.drawable.img_1),
+        contentDescription = null,
+        contentScale = ContentScale.Crop, // Ensures the image scales to fill the screen
+        modifier = Modifier.fillMaxSize()
+    )
+
+    Column(modifier = Modifier.padding(50.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            OutlinedButton(
+                onClick = {
+                    registerClick.value = true
+                    loginClick.value = false
+                    emailLinkClick.value = false
+                    selectedScreen.value = "Register"
+                },
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = if (selectedScreen.value == "Register") Color(0xFF4CAF50) else Color.Transparent,
 //                    contentColor = if (selectedScreen.value  == "Login") Color.White else Color.Black
                 )
-                ) {
+            ) {
                 Text(text = "Register")
 
             }
             Spacer(modifier = Modifier.width(20.dp))
-            OutlinedButton(onClick = {
-                loginClick.value= true
-                registerClick.value = false
-                emailLinkClick.value = false
-                selectedScreen.value = "Login"
+            OutlinedButton(
+                onClick = {
+                    loginClick.value = true
+                    registerClick.value = false
+                    emailLinkClick.value = false
+                    selectedScreen.value = "Login"
 
-            },
+                },
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (selectedScreen.value ==  "Login") Color(0xFF4CAF50) else Color.Transparent,
+                    containerColor = if (selectedScreen.value == "Login") Color(0xFF4CAF50) else Color.Transparent,
 //                    contentColor = if (selectedScreen.value == "Register") Color.White else Color.Black
                 )
-                ) {
+            ) {
                 Text(text = "Login")
 
             }
@@ -148,13 +169,14 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
                     },
                     text = {
                         Column(modifier = Modifier.padding(10.dp)) {
-                            Text(text = "धन्यवाद एमबीएम के सस्ते लोगों, इस ऐप का उद्देश्य केवल मजाक बनाना है," +
-                                    " किसी की भावनाओं का अनादर करने का कोई इरादा नहीं है।                                 " +
-                                    " *आपकी पहचान पूरी तरह छुप जाएगी* " +
+                            Text(
+                                text = "धन्यवाद एमबीएम के सस्ते लोगों, इस ऐप का उद्देश्य केवल मजाक बनाना है," +
+                                        " किसी की भावनाओं का अनादर करने का कोई इरादा नहीं है।                                 " +
+                                        " *आपकी पहचान पूरी तरह छुप जाएगी* " +
 
-                                    " 1.यहां आप अपने डार्क मीम्स शेयर कर सकते हैं\n" +
-                                    "2. आप एमबीएम हॉस्टल, मेस, विभागों के बारे में समीक्षा और प्रतिक्रिया साझा कर सकते हैं।                                    " +
-                                    "धन्यवाद, मुगनीराम जी की ओर से प्यार :)"
+                                        " 1.यहां आप अपने डार्क मीम्स शेयर कर सकते हैं\n" +
+                                        "2. आप एमबीएम हॉस्टल, मेस, विभागों के बारे में समीक्षा और प्रतिक्रिया साझा कर सकते हैं।                                    " +
+                                        "धन्यवाद, मुगनीराम जी की ओर से प्यार :)"
                             )
                         }
                     }
@@ -162,6 +184,7 @@ fun LgSpScreen(navController: NavController,authViewModel: AuthViewModel){
             }
         }
     }
+}
 }
 
 @Composable
