@@ -79,7 +79,7 @@ Box(
 
     // Background Image
     Image(
-        painter = painterResource(id = R.drawable.img_1),
+        painter = painterResource(id = R.drawable.img_3),
         contentDescription = null,
         contentScale = ContentScale.Crop, // Ensures the image scales to fill the screen
         modifier = Modifier.fillMaxSize()
