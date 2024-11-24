@@ -89,14 +89,10 @@ fun CreatePost(
     var isShowMedia by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val userId = authViewModel.auth.currentUser?.uid
-//    val sharedViewModel: SharedViewModel = viewModel()
+
     val imageUrl by sharedViewModel.imageUrl.observeAsState()
-//    val imageUrl = sharedViewModel._imageUrl.value
-
-//    Log.d("check", "imageUrl: $imageUrl")
-
     val newPostId = UUID.randomUUID().toString()
-//    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
+
     var isLoading by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         topBar = {
@@ -177,8 +173,6 @@ fun CreatePost(
                 .padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            // Display Profile Picture
-            Log.d(TAG, "CreatePost: $imageUrl")
 
             imageUrl?.let { url ->
                 val painter = rememberAsyncImagePainter(
@@ -209,12 +203,12 @@ fun CreatePost(
                 }
             Spacer(modifier = Modifier.width(10.dp))
          val name = userDetailsViewModel.userDetails.value?.get("name").toString()
-Log.d(TAG, "CreatePost: $name")
 
-Text(
-    text = if (name.isBlank() || name == "null") "Anonymous" else name,
-    style = MaterialTheme.typography.h6
-)
+
+        Text(
+            text = if (name.isBlank() || name == "null") "Anonymous" else name,
+            style = MaterialTheme.typography.h6
+        )
 
             Spacer(modifier = Modifier.height(20.dp))
 
