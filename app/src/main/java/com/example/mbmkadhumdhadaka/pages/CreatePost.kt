@@ -68,7 +68,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.util.UUID
 
-//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePost(
     navController: NavController,
@@ -94,7 +93,7 @@ fun CreatePost(
     val imageUrl by sharedViewModel.imageUrl.observeAsState()
 //    val imageUrl = sharedViewModel._imageUrl.value
 
-    Log.d("check", "imageUrl: $imageUrl")
+//    Log.d("check", "imageUrl: $imageUrl")
 
     val newPostId = UUID.randomUUID().toString()
 //    val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
@@ -114,7 +113,7 @@ fun CreatePost(
                 actions = {
                     OutlinedButton(
                         onClick = {
-                            if (postContent.isNotEmpty()) {
+                            if (postContent.isNotEmpty() && userDetailsViewModel.userDetails.value != null ) {
                                 selectedPhotoUriForPost?.let { uri ->
                                     isLoading = true;
                                     uploadPostToFirebase(
@@ -152,6 +151,8 @@ fun CreatePost(
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
+                            }else if(userDetailsViewModel.userDetails.value == null){
+                                Toast.makeText(context,"Please load name in profile",Toast.LENGTH_SHORT).show()
                             }
                         },
                         colors = ButtonDefaults.outlinedButtonColors(
@@ -207,7 +208,13 @@ fun CreatePost(
                     )
                 }
             Spacer(modifier = Modifier.width(10.dp))
-            Text(userDetailsViewModel.userDetails.value?.get("name").toString(), style = MaterialTheme.typography.h6)
+         val name = userDetailsViewModel.userDetails.value?.get("name").toString()
+Log.d(TAG, "CreatePost: $name")
+
+Text(
+    text = if (name.isBlank() || name == "null") "Anonymous" else name,
+    style = MaterialTheme.typography.h6
+)
 
             Spacer(modifier = Modifier.height(20.dp))
 
