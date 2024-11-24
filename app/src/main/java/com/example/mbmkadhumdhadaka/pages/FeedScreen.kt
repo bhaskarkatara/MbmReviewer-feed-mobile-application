@@ -69,7 +69,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "MbmKaDhoomDhadaka...",
+                    text = "MbmKaDhoomDhadaka",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -104,7 +104,8 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                                 )
                             }
                         } else {
-                            items(postList, key = { it.postId }) { item ->
+                            val sortedPost = postList.sortedByDescending { it.timestamp }
+                            items(sortedPost, key = { it.postId }) { item ->
                                 PostCard(item, authViewModel) { imageUrl ->
                                     fullScreenImageUrl = imageUrl
                                 }
