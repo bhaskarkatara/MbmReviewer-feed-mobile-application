@@ -207,7 +207,7 @@ fun EditProfileContent(
             Spacer(modifier = Modifier.width(20.dp))
             Text(
                 text = "Save",
-                modifier = Modifier.clickable { onSave(name, status) }
+                modifier = Modifier.clickable { if(name.isNotEmpty() && status.isNotEmpty())onSave(name, status) }
             )
         }
     }
