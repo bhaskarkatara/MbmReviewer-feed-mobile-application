@@ -130,6 +130,9 @@ fun CreatePost(
                                                 ),
 
                                             )
+                                            if (userId != null) {
+                                                userDetailsViewModel.addPostIdToUser(userId, postId = newPostId)
+                                            }
                                                 isLoading = false;
 //                                            sharedViewModel.setImageUrl(null)
                                             postContent = ""

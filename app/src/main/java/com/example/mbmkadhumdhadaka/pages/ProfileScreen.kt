@@ -439,7 +439,7 @@ fun saveProfile(
                         photoUrl = photoUrl,
                         email = email,
                         // Add postIds of user
-                        listOf()
+//                        listOf()
 
 
                     )
@@ -458,7 +458,7 @@ fun saveProfile(
                 status = status,
                 photoUrl = null.toString(),
                 email = email,
-                listOf()
+//                listOf()
             )
             Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
         }

@@ -11,12 +11,16 @@ class UserDetailsViewModel : ViewModel() {
  private val userDetailsRepository = UserDetailsRepository()
   private val _userDetails = MutableLiveData<Map<String, Any>?>()
     val userDetails: MutableLiveData<Map<String, Any>?> = _userDetails
-    fun saveUserDetails(userId: String, name: String, status: String, photoUrl: String, email: String, userIds: List<String>) {
+    fun saveUserDetails(userId: String, name: String, status: String, photoUrl: String, email: String) {
         viewModelScope.launch {
-            userDetailsRepository.saveUserDetails(userId, name, status, photoUrl, email,userIds)
+            userDetailsRepository.saveUserDetails(userId, name, status, photoUrl, email)
         }
     }
-
+    fun addPostIdToUser(userId: String, postId: String) {
+        viewModelScope.launch {
+            userDetailsRepository.addPostIdToUser(userId, postId)
+        }
+    }
     fun getUserDetails(userId: String) {
         viewModelScope.launch {
             val userDetails = userDetailsRepository.getUserDetails(userId)
