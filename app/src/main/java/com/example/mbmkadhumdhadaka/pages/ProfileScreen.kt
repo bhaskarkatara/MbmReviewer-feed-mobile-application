@@ -54,7 +54,6 @@ import com.example.mbmkadhumdhadaka.Screens
 import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
-import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
@@ -105,21 +104,7 @@ fun ProfileScreen(
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
-    var postIds : List<String> = emptyList()
-    postData?.let { result ->
-        when (result) {
-            is PostResult.Success -> {
-                postIds = result.data.map { it.postId }
-            }
-            is PostResult.Error ->{
-                Log.d(TAG, "ProfileScreen: ${result.exception}")
-            }
-            is PostResult.Loading -> {
-                Log.d(TAG, "ProfileScreen: Loading")
-            }
-        }
 
-    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -128,7 +113,7 @@ fun ProfileScreen(
                 userProfile = userProfile,
 //                selectedPhotoUri = selectedPhotoUri,
                 onSave = { name, status ->
-                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context,postIds)
+                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context)
                     scope.launch { sheetState.collapse() }
                 },
                 onCancel = { scope.launch { sheetState.collapse() } }
@@ -433,7 +418,7 @@ fun saveProfile(
     status: String,
     photoUri: Uri?,
     context: Context,
-    postIds : List<String>
+//    postData: PostResult<List<PostModel<Any?>>>?
 ) {
     val email = authViewModel.auth.currentUser?.email
     val userId = authViewModel.auth.currentUser?.uid
@@ -453,8 +438,9 @@ fun saveProfile(
                         status = status,
                         photoUrl = photoUrl,
                         email = email,
-                        postIds
                         // Add postIds of user
+                        listOf()
+
 
                     )
                     Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
@@ -472,7 +458,7 @@ fun saveProfile(
                 status = status,
                 photoUrl = null.toString(),
                 email = email,
-                postIds
+                listOf()
             )
             Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
         }
