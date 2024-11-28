@@ -7,12 +7,16 @@ class UserDetailsRepository {
     private val db = FirebaseFirestore.getInstance()
     private val usersCollection = db.collection("users")
 
-    suspend fun saveUserDetails(userId: String, name: String, status: String, photoUrl: String, email: String) {
+    suspend fun saveUserDetails(userId: String, name: String, status: String, photoUrl: String, email: String,
+    userIds : List<String>
+    ) {
         val userMap = hashMapOf(
             "name" to name,
             "status" to status,
             "photoUrl" to photoUrl,
-            "email" to email)
+            "email" to email,
+            "userIds" to userIds
+            )
         usersCollection.document(userId).set(userMap).await()
     }
 

@@ -51,8 +51,10 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.mbmkadhumdhadaka.R
 import com.example.mbmkadhumdhadaka.Screens
+import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.AuthState
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
+import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
@@ -73,6 +75,7 @@ fun ProfileScreen(
     sharedViewModel: SharedViewModel
 
 ) {
+    val postData by postViewModel.postsData.observeAsState();
 //    val sharedViewModel: SharedViewModel = viewModel()
     val isShowLogoutDialog = rememberSaveable { mutableStateOf(false) }
     val authState by authViewModel.authState.observeAsState()
@@ -102,7 +105,21 @@ fun ProfileScreen(
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
+    var postIds : List<String> = emptyList()
+    postData?.let { result ->
+        when (result) {
+            is PostResult.Success -> {
+                postIds = result.data.map { it.postId }
+            }
+            is PostResult.Error ->{
+                Log.d(TAG, "ProfileScreen: ${result.exception}")
+            }
+            is PostResult.Loading -> {
+                Log.d(TAG, "ProfileScreen: Loading")
+            }
+        }
 
+    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -111,7 +128,7 @@ fun ProfileScreen(
                 userProfile = userProfile,
 //                selectedPhotoUri = selectedPhotoUri,
                 onSave = { name, status ->
-                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context)
+                    saveProfile(userDetailsViewModel, authViewModel, name, status, selectedPhotoUri, context,postIds)
                     scope.launch { sheetState.collapse() }
                 },
                 onCancel = { scope.launch { sheetState.collapse() } }
@@ -415,7 +432,8 @@ fun saveProfile(
     name: String,
     status: String,
     photoUri: Uri?,
-    context: Context
+    context: Context,
+    postIds : List<String>
 ) {
     val email = authViewModel.auth.currentUser?.email
     val userId = authViewModel.auth.currentUser?.uid
@@ -435,6 +453,9 @@ fun saveProfile(
                         status = status,
                         photoUrl = photoUrl,
                         email = email,
+                        postIds
+                        // Add postIds of user
+
                     )
                     Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 },
@@ -450,7 +471,8 @@ fun saveProfile(
                 name = name,
                 status = status,
                 photoUrl = null.toString(),
-                email = email
+                email = email,
+                postIds
             )
             Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
         }
