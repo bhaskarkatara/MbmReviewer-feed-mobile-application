@@ -166,6 +166,7 @@ fun CreatePost(
             )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
