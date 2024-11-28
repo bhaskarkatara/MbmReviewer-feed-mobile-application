@@ -56,7 +56,8 @@ import com.example.mbmkadhumdhadaka.viewModel.ReviewsViewModel
 import com.example.mbmkadhumdhadaka.viewModel.SharedViewModel
 import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 //todo : implement like feature
-// todo: notification when someone posted or add review
+// todo : fix postid problem in firebase in user documents and post documents
+
 
 
 class MainActivity : ComponentActivity() {
