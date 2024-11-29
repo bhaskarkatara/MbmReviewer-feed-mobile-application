@@ -240,10 +240,11 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsView
                         val postIds = userDetails["postIds"] as? List<*> // Safely cast to a list of strings
                         if (postIds != null && postIds.contains(item.postId)) {
                             // show particular grant user option such as edit or delete
-                            Toast.makeText(context, "hiiiiiiiiiii", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "yes ye aapke liye hai", Toast.LENGTH_SHORT).show()
+//                            showOptions(context)
                         }else{
                             // show common options here
-                            Toast.makeText(context, "hiiiiiiiiiii", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "no! ye aapke liye nahi tha", Toast.LENGTH_SHORT).show()
                         }
                     }
 
