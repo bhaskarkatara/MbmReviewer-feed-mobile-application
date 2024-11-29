@@ -14,7 +14,8 @@ class PostRepository(private val firestore: FirebaseFirestore = FirebaseFirestor
     suspend fun createPost(post: PostModel<Any?>) {
         try {
             // Generate a unique post ID using UUID
-            val postId = UUID.randomUUID().toString()
+//            val postId = UUID.randomUUID().toString()
+            val postId = post.postId
             post.postId = postId  // Ensure postId is set in the post model
 
             // Add the post to the 'posts' collection
