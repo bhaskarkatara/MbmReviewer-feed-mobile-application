@@ -1,5 +1,6 @@
 package com.example.mbmkadhumdhadaka.viewModel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ class UserDetailsViewModel : ViewModel() {
         }
     }
     fun addPostIdToUser(userId: String, postId: String) {
+//        Log.d("bhairuk","viewmodel mai aaya " + postId)
         viewModelScope.launch {
             userDetailsRepository.addPostIdToUser(userId, postId)
         }

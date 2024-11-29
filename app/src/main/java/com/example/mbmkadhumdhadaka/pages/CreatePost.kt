@@ -91,7 +91,8 @@ fun CreatePost(
     val userId = authViewModel.auth.currentUser?.uid
 
     val imageUrl by sharedViewModel.imageUrl.observeAsState()
-    val newPostId = UUID.randomUUID().toString()
+
+//    Log.d("bhairuk","user id bani idhar " + newPostId)
 
     var isLoading by rememberSaveable { mutableStateOf(false) }
     Scaffold(
@@ -112,12 +113,15 @@ fun CreatePost(
                             if (postContent.isNotEmpty() && userDetailsViewModel.userDetails.value != null ) {
                                 selectedPhotoUriForPost?.let { uri ->
                                     isLoading = true;
+                                    val newPostId = UUID.randomUUID().toString()
+                                    Log.d("bhairuk","create post wala method call " + newPostId)
                                     uploadPostToFirebase(
                                         context = context,
                                         imageUri = uri,
 //                                        userId = userId!!,
                                         postId = newPostId,
                                         onSuccess = { imageUrl ->
+
                                             postViewModel.createPost(
                                                 PostModel(
                                                     postId = newPostId, // todo: generate new post Id
@@ -131,6 +135,9 @@ fun CreatePost(
 
                                             )
                                             if (userId != null) {
+                                                Log.d("bhairuk",
+                                                    "addPosttoUser wala method $newPostId"
+                                                )
                                                 userDetailsViewModel.addPostIdToUser(userId, postId = newPostId)
                                             }
                                                 isLoading = false;
