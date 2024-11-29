@@ -46,18 +46,20 @@ import com.example.mbmkadhumdhadaka.dataModel.PostModel
 import com.example.mbmkadhumdhadaka.viewModel.AuthViewModel
 import com.example.mbmkadhumdhadaka.viewModel.PostResult
 import com.example.mbmkadhumdhadaka.viewModel.PostViewModel
+import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authViewModel: AuthViewModel) {
+fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authViewModel: AuthViewModel,userDetailsViewModel: UserDetailsViewModel) {
     var isMenuExpanded by remember { mutableStateOf(false) }
     var isClickToFeedback by remember { mutableStateOf(false) }
     var feedbackText by remember { mutableStateOf("") }
     var fullScreenImageUrl by remember { mutableStateOf<String?>(null) } // State to handle full-screen image
     val context = LocalContext.current
     val postsData by postViewModel.postsData.observeAsState(PostResult.Loading)
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -106,7 +108,7 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
                         } else {
                             val sortedPost = postList.sortedByDescending { it.timestamp }
                             items(sortedPost, key = { it.postId }) { item ->
-                                PostCard(item, authViewModel) { imageUrl ->
+                                PostCard(item, authViewModel,userDetailsViewModel) { imageUrl ->
                                     fullScreenImageUrl = imageUrl
                                 }
                             }
@@ -187,10 +189,17 @@ fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authVi
     }
 }
 @Composable
-fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,onImageClick: (String) -> Unit) {
+fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsViewModel: UserDetailsViewModel,onImageClick: (String) -> Unit) {
     val userId = authViewModel.auth.currentUser?.uid
     var isLiked by remember { mutableStateOf(false) }
-    var likeCount by remember { mutableStateOf( 0) }
+    var likeCount by remember { mutableIntStateOf( 0) }
+    val context = LocalContext.current
+    val userDetailData by userDetailsViewModel.userDetails.observeAsState()
+
+    if (userDetailData == null) {
+        userDetailsViewModel.getUserDetails(userId ?: "")
+    }
+    Log.d("hnji", "postcard wala method$userDetailData")
 
     Card(
         modifier = Modifier
@@ -226,7 +235,15 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,onImageClick: (
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /* TODO: Show post options */ }) {
+                IconButton(onClick = {
+                    userDetailData?.let { userDetails ->
+                        val postIds = userDetails["postIds"] as? List<*> // Safely cast to a list of strings
+                        if (postIds != null && postIds.contains(item.postId)) {
+                            Toast.makeText(context, "hiiiiiiiiiii", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Options"
