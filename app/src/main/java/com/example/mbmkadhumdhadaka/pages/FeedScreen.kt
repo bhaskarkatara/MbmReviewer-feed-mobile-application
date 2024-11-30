@@ -50,6 +50,7 @@ import com.example.mbmkadhumdhadaka.viewModel.UserDetailsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.exp
 
 @Composable
 fun FeedScreen(navController: NavController, postViewModel: PostViewModel,authViewModel: AuthViewModel,userDetailsViewModel: UserDetailsViewModel) {
@@ -195,11 +196,11 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsView
     var likeCount by remember { mutableIntStateOf( 0) }
     val context = LocalContext.current
     val userDetailData by userDetailsViewModel.userDetails.observeAsState()
-
+    var expanded by remember { mutableStateOf(false) }
     if (userDetailData == null) {
         userDetailsViewModel.getUserDetails(userId ?: "")
     }
-    Log.d("hnji", "postcard wala method$userDetailData")
+//    Log.d("hnji", "postcard wala method$userDetailData")
 
     Card(
         modifier = Modifier
@@ -236,12 +237,12 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsView
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {
+
                     userDetailData?.let { userDetails ->
                         val postIds = userDetails["postIds"] as? List<*> // Safely cast to a list of strings
                         if (postIds != null && postIds.contains(item.postId)) {
-                            // show particular grant user option such as edit or delete
-                            Toast.makeText(context, "yes ye aapke liye hai", Toast.LENGTH_SHORT).show()
-//                            showOptions(context)
+                            expanded = true
+
                         }else{
                             // show common options here
                             Toast.makeText(context, "no! ye aapke liye nahi tha", Toast.LENGTH_SHORT).show()
@@ -255,7 +256,14 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsView
                     )
                 }
             }
-
+            if (expanded) {
+                ShowOptions(
+                    expanded = expanded,
+                    onDismiss = { expanded = false },
+                    onEditClick = { /* Handle Edit */ },
+                    onDeleteClick = { /* Handle Delete */ }
+                )
+            }
             Text(
                 text = item.postContent,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -306,7 +314,33 @@ fun PostCard(item: PostModel<Any?>, authViewModel: AuthViewModel,userDetailsView
         }
     }
 }
-
+@Composable
+fun ShowOptions(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss
+    ) {
+        DropdownMenuItem(
+            text = { Text("Edit") },
+            onClick = {
+                onEditClick()
+                onDismiss()
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Delete") },
+            onClick = {
+                onDeleteClick()
+                onDismiss()
+            }
+        )
+    }
+}
 fun formatTimeStamp(timestamp: Long): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val date = Date(timestamp)

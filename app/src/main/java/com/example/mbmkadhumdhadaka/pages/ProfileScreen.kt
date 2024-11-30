@@ -230,6 +230,7 @@ fun ProfileTopBar(onEditClick: () -> Unit, onRefreshClick: () -> Unit) {
     )
 }
 
+// todo : fix : erase image of profile when user logout, or when it create new account #bug
 @Composable
 fun ProfileContent(
     sharedViewModel: SharedViewModel,
@@ -257,7 +258,7 @@ fun ProfileContent(
         ) {
             imageUrl =
                 selectedPhotoUri ?: (userProfile?.get("photoUrl") as? String)?.let { Uri.parse(it) }
-            Log.d(TAG, "ProfileContent: $imageUrl")
+//            Log.d(TAG, "ProfileContent: $imageUrl")
                sharedViewModel.setImageUrl(imageUrl.toString())
 //            imageUrl.let {
 //            uri ->
