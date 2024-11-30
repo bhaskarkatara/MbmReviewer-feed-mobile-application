@@ -308,6 +308,8 @@ fun ProfileContent(
             } else {
                 Log.d(TAG, "No image URL available")
                 // Optionally display a default image or message
+
+
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground), // Replace with a default image
                     contentDescription = "Default Profile Picture",
